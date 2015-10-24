@@ -3,9 +3,11 @@
 from twisted.internet import reactor
 from twisted.internet.protocol import Factory, Protocol
 from twisted.internet.serialport import SerialPort
+from txosc import async
+
+from txosc import osc
 
 import jack
-
 import numpy as np
 
 arduino = None
@@ -57,13 +59,21 @@ class ButtonHandler():
                 self.buttons[i] = bs
 
 
-def handleMuteButton(i,bs):
-    if bs:
-        print "Muting",
-    else:
-        print "Unmuting",
-    print "channel number %d" % (i+1)
+class OSCSender(object):
+    def __init__(self, host="127.0.0.1", port=3819):
+        self.port = port
+        self.host = host
+        self.client = async.DatagramClientProtocol()
+        reactor.listenUDP(0,self.client)
 
+    def sendMessage(self,message):
+        self.client.send(message, (self.host, self.port))
+        print message
+
+    def handleMuteButton(self,i,bs):
+        value = 1.
+        if bs:
+            value = 0.
 
 class JackClient():
     def __init__(self):
@@ -82,7 +92,8 @@ class JackClient():
 if __name__ == "__main__":
     SerialPort(ArduinoConnection(), '/dev/ttyUSB0', reactor, 9600)
     MbH = ButtonHandler()
-    MbH.setCallback(handleMuteButton)
+    oscs = OSCSender()
+    MbH.setCallback(oscs.handleMuteButton)
     arduino.setMuteCallback(MbH.buttonsChanged)
     jc = JackClient()
     reactor.run()
