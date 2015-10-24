@@ -1,4 +1,8 @@
 #!/usr/bin/python
+"""The software side of Podregilo
+
+For now there's not very much docu yet. We are working on the code.
+"""
 
 from twisted.internet import reactor
 from twisted.internet.protocol import Factory, Protocol
@@ -9,6 +13,13 @@ from txosc import osc
 
 import jack
 import numpy as np
+
+__author__ = "Johannes Mueller"
+__copyright__ = "Copyright 2015, The Podregilo Project"
+__license__ = "GPLv2"
+__email__ = "github@johannes-mueller.org"
+__status__ = "Proof of concept"
+
 
 arduino = None
 

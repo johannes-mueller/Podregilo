@@ -1,3 +1,10 @@
+/**
+*
+* Copyright (c) 2015 Johannes Mueller <github@johannes-mueller.org>
+* Distributed under the GNU GPL v2. For full terms see the file /LICENSE.
+*
+*/
+
 
 const byte latchPin = 6;
 const byte dataPin = 4;
