@@ -85,6 +85,8 @@ class OSCSender(object):
         value = 1.
         if bs:
             value = 0.
+        self.sendMessage(osc.Message("/ardour/routes/gainabs", i, value))
+
 
 class JackClient():
     def __init__(self):
