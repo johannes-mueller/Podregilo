@@ -29,10 +29,9 @@ void setup()
 
 #define BITNUM 16
 
-unsigned int oldData = 0;
-
 void passButtonState()
 {
+	static unsigned int oldData = 0;
 	unsigned int data = 0;
 
 	digitalWrite(latchPin,LOW);
