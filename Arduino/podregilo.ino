@@ -14,10 +14,6 @@ const byte redPin = 2;
 const byte greenPin = 3;
 
 
-#define DATAWIDTH 8
-
-byte data, oldData;
-
 
 void setup()
 {
@@ -28,31 +24,34 @@ void setup()
 	pinMode(redPin,OUTPUT);
 
 	Serial.begin(9600);
-
-	data = 0;
-	oldData = 0;
 }
 
 
+#define BITNUM 16
+
+unsigned int oldData = 0;
+
 void passButtonState()
 {
+	unsigned int data = 0;
+
 	digitalWrite(latchPin,LOW);
 	delayMicroseconds(1);
 	digitalWrite(latchPin,HIGH);
 
-	data = 0;
-
-	for (int i=0; i<DATAWIDTH; i++) {
-		byte bitval = digitalRead(dataPin);
-		data |= (bitval << ((DATAWIDTH-1)-i));
+	for (int i=0; i<BITNUM; i++) {
+		unsigned int bitval = digitalRead(dataPin);
+		data |= (bitval << ((BITNUM-1)-i));
 
 		digitalWrite(clockPin,HIGH);
 		delayMicroseconds(1);
 		digitalWrite(clockPin,LOW);
 	}
 
-	if (data != oldData)
-		Serial.write(data);
+	if (data != oldData) {
+		Serial.write(lowByte(data));
+		Serial.write(highByte(data));
+	}
 
 	oldData = data;
 }

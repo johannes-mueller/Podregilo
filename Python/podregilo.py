@@ -32,25 +32,23 @@ class ArduinoConnection(Protocol):
         global arduino
         arduino = self
         print 'Arduino device: ', self, ' is connected.'
-        self.oldMuteButtons = 0b0000
-        self.oldOtherButtons = 0b0000
-        self.muteCallback = dummyCallback
-        self.otherCallback = dummyCallback
+        self.oldButtonGroup = [ 0b0000, 0b0000, 0b0000, 0b0000 ]
+        self.buttonCallback = [ dummyCallback, dummyCallback, dummyCallback, dummyCallback ]
 
-    def setMuteCallback(self,func):
-        self.muteCallback = func
+    def setCallback(self,i,func):
+        self.buttonCallback[i] = func
 
     def sendData(self, data):
         self.transport.write(chr(data))
 
     def dataReceived(self,data):
-        buttonState = ord(data[-1])
-        muteButtons = buttonState >> 4
-        otherButtons = buttonState & 0b00001111
+        bs = [ord(data[-1]), ord(data[-2])]
+        bGroup = [ bs[0] >> 4, bs[0] & 0b00001111, bs[1] >> 4, bs[1] & 0b00001111 ]
 
-        if muteButtons != self.oldMuteButtons:
-            self.muteCallback(muteButtons)
-            self.oldMuteButtons = muteButtons
+        for i, bg in enumerate(bGroup):
+            if bg != self.oldButtonGroup[i]:
+                self.buttonCallback[i](bg)
+                self.oldButtonGroup[i] = bg
 
 
 class ButtonHandler():
@@ -88,6 +86,10 @@ class OSCSender(object):
         self.sendMessage(osc.Message("/ardour/routes/gainabs", i, value))
 
 
+def dummyHandleButton(i,bs):
+    print "Dummy Button Handler %d to %d" %(i,bs)
+
+
 class JackClient():
     def __init__(self):
         self.jc = jack.Client("podregilo")
@@ -102,11 +104,15 @@ class JackClient():
         m = max(m1,m2)
         arduino.sendData(int(m*10))
 
+
 if __name__ == "__main__":
     SerialPort(ArduinoConnection(), '/dev/ttyUSB0', reactor, 9600)
-    MbH = ButtonHandler()
     oscs = OSCSender()
+    MbH = ButtonHandler()
+    JbH = ButtonHandler()
     MbH.setCallback(oscs.handleMuteButton)
-    arduino.setMuteCallback(MbH.buttonsChanged)
+    JbH.setCallback(dummyHandleButton)
+    arduino.setCallback(2,MbH.buttonsChanged)
+    arduino.setCallback(1,JbH.buttonsChanged)
     jc = JackClient()
     reactor.run()
