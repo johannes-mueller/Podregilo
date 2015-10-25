@@ -55,7 +55,7 @@ void passButtonState()
 	oldData = data;
 }
 
-void handleState()
+void checkSerialBuffer()
 {
 	if (!Serial.available())
 		return;
@@ -76,5 +76,5 @@ void handleState()
 void loop()
 {
 	passButtonState();
-	handleState();
+	checkSerialBuffer();
 }
