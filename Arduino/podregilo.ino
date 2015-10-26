@@ -6,9 +6,9 @@
 */
 
 
-const byte latchPin = 6;
-const byte dataPin = 4;
-const byte clockPin = 5;
+const byte latchPin_in = 6;
+const byte dataPin_in = 4;
+const byte clockPin_in = 5;
 
 const byte redPin = 2;
 const byte greenPin = 3;
@@ -17,9 +17,9 @@ const byte greenPin = 3;
 
 void setup()
 {
-	pinMode(latchPin,OUTPUT);
-	pinMode(clockPin,OUTPUT);
-	pinMode(dataPin,INPUT);
+	pinMode(latchPin_in,OUTPUT);
+	pinMode(clockPin_in,OUTPUT);
+	pinMode(dataPin_in,INPUT);
 	pinMode(greenPin,OUTPUT);
 	pinMode(redPin,OUTPUT);
 
@@ -34,17 +34,17 @@ void passButtonState()
 	static unsigned int oldData = 0;
 	unsigned int data = 0;
 
-	digitalWrite(latchPin,LOW);
+	digitalWrite(latchPin_in,LOW);
 	delayMicroseconds(1);
-	digitalWrite(latchPin,HIGH);
+	digitalWrite(latchPin_in,HIGH);
 
 	for (int i=0; i<BITNUM; i++) {
-		unsigned int bitval = digitalRead(dataPin);
+		unsigned int bitval = digitalRead(dataPin_in);
 		data |= (bitval << ((BITNUM-1)-i));
 
-		digitalWrite(clockPin,HIGH);
+		digitalWrite(clockPin_in,HIGH);
 		delayMicroseconds(1);
-		digitalWrite(clockPin,LOW);
+		digitalWrite(clockPin_in,LOW);
 	}
 
 	if (data != oldData) {
