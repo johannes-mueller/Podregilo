@@ -21,13 +21,13 @@ DAW while podcasting. The following features are planned:
 
 # Status
 
-We are in the status of early development. Some fist tests and proofs of
+We are in the status of early development. Some first tests and proofs of
 concept.
 
 
 # Used technology
 
-The hardware is build around a Arduino compatible board, probably the Arduino
+The hardware is build around an Arduino compatible board, probably the Arduino
 nano. We are using parallel shift registers SN74HC165 and SN74HC595 to get and
 set the states of our hardware items. On the software side we speak OSC to our
 DAW and also probably MIDI to other software. The meter levels we get via
