@@ -6,9 +6,9 @@
 */
 
 
-const byte latchPin = 3;
-const byte dataPin = 4;
-const byte clockPin = 2;
+const byte latchPin_in = 3;
+const byte dataPin_in = 4;
+const byte clockPin_in = 2;
 
 const byte redPin = 7;
 const byte greenPin = 8;
@@ -48,8 +48,9 @@ void passButtonState()
 	}
 
 	if (data != oldData) {
-		Serial.write(lowByte(data));
-		Serial.write(highByte(data));
+		Serial.write((uint8_t*) &data,2);
+		Serial.flush();
+		//		Serial.write(highByte(data));
 	}
 
 	oldData = data;
