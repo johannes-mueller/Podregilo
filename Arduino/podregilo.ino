@@ -6,12 +6,12 @@
 */
 
 
-const byte latchPin = 6;
+const byte latchPin = 3;
 const byte dataPin = 4;
-const byte clockPin = 5;
+const byte clockPin = 2;
 
-const byte redPin = 2;
-const byte greenPin = 3;
+const byte redPin = 7;
+const byte greenPin = 8;
 
 
 
