@@ -14,6 +14,8 @@ from txosc import osc
 import jack
 import numpy as np
 
+import sys
+
 __author__ = "Johannes Mueller"
 __copyright__ = "Copyright 2015, The Podregilo Project"
 __license__ = "GPLv2"
@@ -34,6 +36,8 @@ class ArduinoConnection(Protocol):
         print 'Arduino device: ', self, ' is connected.'
         self.oldButtonGroup = [ 0b0000, 0b0000, 0b0000, 0b0000 ]
         self.buttonCallback = [ dummyCallback, dummyCallback, dummyCallback, dummyCallback ]
+        self.data = []
+        self.bytesExpected = 2
 
     def setCallback(self,i,func):
         self.buttonCallback[i] = func
@@ -42,7 +46,18 @@ class ArduinoConnection(Protocol):
         self.transport.write(chr(data))
 
     def dataReceived(self,data):
-        bs = [ord(data[-1]), ord(data[-2])]
+#        print "received", len(data), "bytes, total", len(self.data), "expecting", self.bytesExpected
+        self.data += data
+        if (len(self.data) > self.bytesExpected):
+            print "*** Too many bytes, got %d, expected %d." % (len(self.data), self.bytesExpected)
+            self.data = []
+            return
+        if (len(self.data) < self.bytesExpected):
+            return
+
+        bs = [ord(self.data[-1]), ord(self.data[-2])]
+        self.data = []
+        print '{0:#010b}'.format(bs[0]), '{0:#010b}'.format(bs[1])
         bGroup = [ bs[0] >> 4, bs[0] & 0b00001111, bs[1] >> 4, bs[1] & 0b00001111 ]
 
         for i, bg in enumerate(bGroup):
@@ -112,7 +127,7 @@ if __name__ == "__main__":
     JbH = ButtonHandler()
     MbH.setCallback(oscs.handleMuteButton)
     JbH.setCallback(dummyHandleButton)
-    arduino.setCallback(2,MbH.buttonsChanged)
-    arduino.setCallback(1,JbH.buttonsChanged)
-    jc = JackClient()
+    arduino.setCallback(3,MbH.buttonsChanged)
+    arduino.setCallback(2,JbH.buttonsChanged)
+    #jc = JackClient()
     reactor.run()
