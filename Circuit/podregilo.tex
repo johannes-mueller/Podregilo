@@ -1,0 +1,89 @@
+\documentclass[landscape,a3paper]{scrartcl}
+
+\usepackage[european]{circuitikz}
+\usetikzlibrary{calc}
+
+\def\74HC165(#1)#2{%
+  \begin{scope}[shift={(#1)}]
+    \draw (0,0) rectangle (3,4.5);
+    \draw (0,4.0) node [right] {1 SH/LD} -- ++(-1,0) coordinate (#2 SHLD);
+    \draw (0,3.5) node [right] {2 CLK} -- ++(-1,0) coordinate (#2 CLK);
+    \draw (0,3.0) node [right] {3 E} -- ++(-1,0) coordinate (#2 E);
+    \draw (0,2.5) node [right] {4 F} -- ++(-1,0) coordinate (#2 F);
+    \draw (0,2.0) node [right] {5 G} -- ++(-1,0) coordinate (#2 G);
+    \draw (0,1.5) node [right] {6 H} -- ++(-1,0) coordinate (#2 H);
+    \draw (0,1.0) node [right] {7 QHINV} -- ++(-1,0) coordinate (#2 QHINV);
+    \draw (0,0.5) node [right] {8 GND} -- ++(-1,0) coordinate (#2 GND);
+
+    \draw (3,4.0) node [left] {VCC 16} -- ++(1,0) coordinate (#2 VCC);
+    \draw (3,3.5) node [left] {CLKINH 15} -- ++(1,0) coordinate (#2 CLKINH);
+    \draw (3,3.0) node [left] {D 14} -- ++(1,0) coordinate (#2 D);
+    \draw (3,2.5) node [left] {C 13} -- ++(1,0) coordinate (#2 C);
+    \draw (3,2.0) node [left] {B 12} -- ++(1,0) coordinate (#2 B);
+    \draw (3,1.5) node [left] {A 11} -- ++(1,0) coordinate (#2 A);
+    \draw (3,1.0) node [left] {SER 10} -- ++(1,0) coordinate (#2 SER);
+    \draw (3,0.5) node [left] {QH 9} -- ++(1,0) coordinate (#2 QH);
+
+    \draw (1.5,2.25) node {74HC165};
+  \end{scope}
+}
+\def\connectV#1#2#3{\draw (#1) -- ++(#3,0) coordinate (inter) -| (#2 -| inter) -- (#2);}
+
+\begin{document}
+\sffamily\scriptsize
+\ctikzset{label/align = rotate}
+\begin{tikzpicture}
+  \74HC165(0,0){PISO1}
+  \74HC165(0,6){PISO2}
+
+  \connectV{PISO1 QH}{PISO2 SER}{0.5}
+  \connectV{PISO1 SHLD}{PISO2 SHLD}{-1}
+  \connectV{PISO1 CLK}{PISO2 CLK}{-1.5}
+
+  \foreach \i / \a in {1/A,2/B,3/C,4/D}
+  {%
+    \draw (PISO1 D -| \i+5,0) coordinate (mute \i) to[push button=mute \i] ++(0,2) coordinate(mute VCC \i);;
+    \draw (mute \i) to[short] (PISO1 A -| mute \i) to[R=10 k] ++(0,-4) coordinate(mute GND \i);;
+    \draw (PISO1 \a) to[short,-*] (PISO1 \a -| mute \i);
+  }
+  \foreach \i / \a in {1/E,2/F,3/G,4/H}
+  {%
+    \draw (PISO1 E -| \i-7,0) coordinate (jingle \i) to[push button=jingle \i] ++(0,2) coordinate (jingle VCC \i);
+    \draw (jingle \i) to[short] (PISO1 H -| jingle \i) to[R=10 k] ++(0,-4) coordinate (jingle GND \i);
+    \draw (PISO1 \a) to[short,-*] (PISO1 \a -| jingle \i);
+  }
+
+  \draw ($(jingle GND 1) - (1,0)$) node (jingle GND) [rground]  {};
+  \foreach \i in {1,...,4}
+  {%
+    \draw (jingle GND) to[short,-*] (jingle GND \i);
+  }
+  \draw ($(mute GND 1) - (1,0)$) node (mute GND) [rground]  {};
+  \foreach \i in {1,...,4}
+  {%
+    \draw (mute GND) to[short,-*] (mute GND \i);
+  }
+
+  \connectV{PISO1 VCC}{PISO2 VCC}{1}
+  \foreach \i in {1,...,4}
+  {%
+    \draw (jingle VCC 1 -| inter) to[short,*-*] (jingle VCC \i);
+    \draw (mute VCC 1 -| inter) to[short,*-*] (mute VCC \i);
+  }
+
+  \foreach \i / \a in {1/A,2/B,3/C,4/D}
+  {%
+    \draw (PISO1 \a -| mute \i) coordinate (inter) +(4,0) node[buffer,scale=0.5] (ledbuf) {} (inter) -- (ledbuf.in)
+    (ledbuf.out) -- (PISO1 A -| ledbuf.out) to[R=270R] ++(0.,-2) to[leDo] ++(0,-2) coordinate (muteled GND \i);
+  }
+  \foreach \i in {1,2,3} { \draw (mute GND \i) to[short,-*] (muteled GND \i);}
+  \draw (mute GND) to[short] (muteled GND 4);
+
+  \connectV{PISO1 GND}{PISO2 GND}{-0.5}
+  \draw (inter) to[short,*-] (inter |- jingle GND) to[short] (jingle GND);
+  \foreach \a in {E,F,G,H} {\draw (PISO2 \a) -- (inter |- PISO2 \a) to[short,-*] (inter |- PISO2 GND) coordinate (inter); }
+  \coordinate (inter2) at ($(PISO2 D) +(1.5,0)$);
+  \draw (inter) +(0,-1.0) coordinate (inter) to[short,*-] (inter -| inter2) -- (inter2) --(PISO2 D);
+\end{tikzpicture}
+
+\end{document}
