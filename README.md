@@ -3,6 +3,11 @@
 Arduino based hardware to control a podcasting DAW.
 
 
+## Disclaimer
+
+By now this project is far from being useful. It might be interesting to other developers though.
+
+
 # Goal
 
 We are developing and constructing an Arduino based hardware box to control our
