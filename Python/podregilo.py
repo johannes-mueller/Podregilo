@@ -98,7 +98,7 @@ class OSCSender(object):
         value = 1.
         if bs:
             value = 0.
-        self.sendMessage(osc.Message("/ardour/routes/gainabs", i, value))
+        self.sendMessage(osc.Message("/ardour/routes/gainabs", i+1, value))
 
 
 def dummyHandleButton(i,bs):
