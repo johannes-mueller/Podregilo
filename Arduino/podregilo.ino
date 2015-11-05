@@ -32,8 +32,6 @@ void setup()
 }
 
 
-#define BITNUM 16
-
 void passButtonState()
 {
 	static unsigned int oldData = 0;
@@ -43,20 +41,17 @@ void passButtonState()
 	delayMicroseconds(1);
 	digitalWrite(latchPin_in,HIGH);
 
-	for (int i=0; i<BITNUM; i++) {
+	for (int i=0; i<8*sizeof(data); i++) {
 		unsigned int bitval = digitalRead(dataPin_in);
-		data |= (bitval << ((BITNUM-1)-i));
+		data |= (bitval << ((8*sizeof(data)-1)-i));
 
 		digitalWrite(clockPin_in,HIGH);
 		delayMicroseconds(1);
 		digitalWrite(clockPin_in,LOW);
 	}
 
-	if (data != oldData) {
+	if (data != oldData)
 		Serial.write((uint8_t*) &data,2);
-		Serial.flush();
-		//		Serial.write(highByte(data));
-	}
 
 	oldData = data;
 }
