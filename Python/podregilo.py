@@ -23,6 +23,8 @@ __email__ = "github@johannes-mueller.org"
 __status__ = "Proof of concept"
 
 
+channelnum = 4
+
 arduino = None
 
 def dummyCallback(state):
@@ -43,7 +45,7 @@ class ArduinoConnection(Protocol):
         self.buttonCallback[i] = func
 
     def sendData(self, data):
-        self.transport.write(chr(data))
+        self.transport.write(data)
 
     def dataReceived(self,data):
 #        print "received", len(data), "bytes, total", len(self.data), "expecting", self.bytesExpected
@@ -108,16 +110,25 @@ def dummyHandleButton(i,bs):
 class JackClient():
     def __init__(self):
         self.jc = jack.Client("podregilo")
-        self.port1 = self.jc.inports.register("vocxo-1")
+        self.ports = []
+        for i in range(channelnum):
+            self.ports.append(self.jc.inports.register("vocxo-"+str(i+1)))
         self.jc.set_process_callback(self.process)
         self.jc.activate()
 
     def process(self,frames):
-        audio = self.port1.get_array()
-        m1 = np.max(audio)
-        m2 = -np.min(audio)
-        m = max(m1,m2)
-        arduino.sendData(int(m*10))
+        data = "l"
+        for p in self.ports:
+            audio = p.get_array()
+            m1 = np.max(audio)
+            m2 = -np.min(audio)
+            m = max(m1,m2)
+            if m > 1.:
+                m = 1.
+            print int(m*255)
+            data += chr(int(m*255))
+
+        arduino.sendData(data)
 
 
 if __name__ == "__main__":
@@ -129,5 +140,5 @@ if __name__ == "__main__":
     JbH.setCallback(dummyHandleButton)
     arduino.setCallback(3,MbH.buttonsChanged)
     arduino.setCallback(2,JbH.buttonsChanged)
-    #jc = JackClient()
+    jc = JackClient()
     reactor.run()
