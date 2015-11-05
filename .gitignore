@@ -1,2 +1,3 @@
 Arduino/build-uno
+Arduino/build-nano328
 *.log
