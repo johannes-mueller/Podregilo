@@ -24,6 +24,9 @@ const byte levelind = 0;
 
 enum LedState { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
 
+long lastMeterUpdate;
+
+
 void setup()
 {
 	pinMode(latchPin_in,OUTPUT);
@@ -68,6 +71,9 @@ void adjustLevels()
         char buffer[channelnum];
 
         byte n = Serial.readBytes(buffer,channelnum);
+        if (n!=4)
+                outbuf[levelind] = 0b11111111;
+
         // FIXME: error handling; what if there's not enough bytes available
 
         for (byte i=0; i<channelnum; i++) {
@@ -80,6 +86,8 @@ void adjustLevels()
                 else if (v>64)
                         outbuf[levelind] |= (green  << 2*i);
         }
+
+        lastMeterUpdate = millis();
 }
 
 
@@ -124,4 +132,8 @@ void loop()
 	passButtonState();
 	checkSerialBuffer();
 	shiftOutData();
+
+        if (millis()-lastMeterUpdate > 200)
+                outbuf[levelind] = 0b00000000;
+
 }
