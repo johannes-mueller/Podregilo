@@ -41,7 +41,7 @@ void passButtonState()
 	delayMicroseconds(1);
 	digitalWrite(latchPin_in,HIGH);
 
-	for (int i=0; i<8*sizeof(data); i++) {
+	for (unsigned int i=0; i<8*sizeof(data); i++) {
 		unsigned int bitval = digitalRead(dataPin_in);
 		data |= (bitval << ((8*sizeof(data)-1)-i));
 
