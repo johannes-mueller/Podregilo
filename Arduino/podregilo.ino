@@ -15,9 +15,14 @@ const byte dataPin_out = 5;
 const byte clockPin_out = 7;
 
 
+const byte channelnum = 4;
+
 const byte outbuflen = 1;
 byte outbuf[outbuflen] = { 0b11011011 };//, 0b01010101, 0b01000001, 0b10101010 };
 
+const byte levelind = 0;
+
+enum LedState { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
 
 void setup()
 {
@@ -56,12 +61,43 @@ void passButtonState()
 	oldData = data;
 }
 
+
+void adjustLevels()
+{
+        outbuf[levelind] = 0b00000000;
+        char buffer[channelnum];
+
+        byte n = Serial.readBytes(buffer,channelnum);
+        // FIXME: error handling; what if there's not enough bytes available
+
+        for (byte i=0; i<channelnum; i++) {
+                byte v = buffer[i];
+
+                if (v>192)
+                        outbuf[levelind] |= (red << 2*i);
+                else if (v>96)
+                        outbuf[levelind] |= (yellow << 2*i);
+                else if (v>64)
+                        outbuf[levelind] |= (green  << 2*i);
+        }
+}
+
+
 void checkSerialBuffer()
 {
 	if (!Serial.available())
 		return;
 
-	byte data = Serial.read();
+	char c = Serial.read();
+
+        switch(c) {
+        case 'l':
+                adjustLevels();
+                break;
+        default:
+                break;
+                // FIXME: error handling
+        }
 }
 
 void shiftOutData()
