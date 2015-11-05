@@ -10,9 +10,13 @@ const byte latchPin_in = 3;
 const byte dataPin_in = 4;
 const byte clockPin_in = 2;
 
-const byte redPin = 7;
-const byte greenPin = 8;
+const byte latchPin_out = 6;
+const byte dataPin_out = 5;
+const byte clockPin_out = 7;
 
+
+const byte outbuflen = 1;
+byte outbuf[outbuflen] = { 0b11011011 };//, 0b01010101, 0b01000001, 0b10101010 };
 
 
 void setup()
@@ -20,9 +24,10 @@ void setup()
 	pinMode(latchPin_in,OUTPUT);
 	pinMode(clockPin_in,OUTPUT);
 	pinMode(dataPin_in,INPUT);
-	pinMode(greenPin,OUTPUT);
-	pinMode(redPin,OUTPUT);
 
+	pinMode(latchPin_out,OUTPUT);
+	pinMode(clockPin_out,OUTPUT);
+	pinMode(dataPin_out,OUTPUT);
 	Serial.begin(9600);
 }
 
@@ -62,20 +67,30 @@ void checkSerialBuffer()
 		return;
 
 	byte data = Serial.read();
-	digitalWrite(redPin,LOW);
-	digitalWrite(greenPin,LOW);
+}
 
-	if (data == 0)
-		return;
+void shiftOutData()
+{
+	for (byte i=0; i<outbuflen; i++) {
+		byte p = 1;
+		for (byte j=0; j<8; j++) {
+			digitalWrite(dataPin_out, p & outbuf[i]);
+			p = p << 1;
 
-	if (data < 4)
-		digitalWrite(greenPin,HIGH);
-	else
-		digitalWrite(redPin,HIGH);
+			digitalWrite(clockPin_out, HIGH);
+			delayMicroseconds(1);
+			digitalWrite(clockPin_out, LOW);
+		}
+	}
+
+	digitalWrite(latchPin_out, LOW);
+	delayMicroseconds(1);
+	digitalWrite(latchPin_out, HIGH);
 }
 
 void loop()
 {
 	passButtonState();
 	checkSerialBuffer();
+	shiftOutData();
 }
