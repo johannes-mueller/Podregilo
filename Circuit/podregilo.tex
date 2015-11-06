@@ -1,7 +1,10 @@
-\documentclass[landscape,a3paper]{scrartcl}
+\documentclass[]{article}
 
+\usepackage[b3paper,landscape]{geometry}
 \usepackage[european]{circuitikz}
 \usetikzlibrary{calc}
+
+\pagestyle{empty}
 
 \def\74HC165(#1)#2{%
   \begin{scope}[shift={(#1)}]
