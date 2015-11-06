@@ -37,22 +37,23 @@
 \ctikzset{label/align = rotate}
 \begin{tikzpicture}
   \74HC165(0,0){PISO1}
-  \74HC165(0,6){PISO2}
+  \74HC165(0,8){PISO2}
+  \coordinate (GND) at (0,-6);
 
   \connectV{PISO1 QH}{PISO2 SER}{0.5}
   \connectV{PISO1 SHLD}{PISO2 SHLD}{-1}
   \connectV{PISO1 CLK}{PISO2 CLK}{-1.5}
 
-  \foreach \i / \a in {1/A,2/B,3/C,4/D}
+  \foreach \i / \a in {4/E,3/F,2/G,1/H}
   {%
-    \draw (PISO1 D -| \i+5,0) coordinate (mute \i) to[push button=mute \i] ++(0,2) coordinate(mute VCC \i);;
-    \draw (mute \i) to[short] (PISO1 A -| mute \i) to[R=10 k] ++(0,-4) coordinate(mute GND \i);;
+    \draw (PISO1 E -| \i-8,0) coordinate (mute \i) to[push button=mute \i] ++(0,2) coordinate(mute VCC \i);;
+    \draw (mute \i) to[short] (PISO1 H -| mute \i) coordinate (inter) to[R=10k] (inter |- GND) coordinate(mute GND \i);
     \draw (PISO1 \a) to[short,-*] (PISO1 \a -| mute \i);
   }
-  \foreach \i / \a in {1/E,2/F,3/G,4/H}
+  \foreach \i / \a in {1/A,2/B,3/C,4/D}
   {%
-    \draw (PISO1 E -| \i-7,0) coordinate (jingle \i) to[push button=jingle \i] ++(0,2) coordinate (jingle VCC \i);
-    \draw (jingle \i) to[short] (PISO1 H -| jingle \i) to[R=10 k] ++(0,-4) coordinate (jingle GND \i);
+    \draw (PISO1 D -| \i+6,0) coordinate (jingle \i) to[push button=jingle \i] ++(0,2) coordinate (jingle VCC \i);
+    \draw (jingle \i) to[short] (PISO1 A -| jingle \i) coordinate (inter) to[R=10k] (inter |- GND) coordinate (jingle GND \i);
     \draw (PISO1 \a) to[short,-*] (PISO1 \a -| jingle \i);
   }
 
@@ -76,8 +77,9 @@
 
   \foreach \i / \a in {1/A,2/B,3/C,4/D}
   {%
-    \draw (PISO1 \a -| mute \i) coordinate (inter) +(4,0) node[buffer,scale=0.5] (ledbuf) {} (inter) -- (ledbuf.in)
-    (ledbuf.out) -- (PISO1 A -| ledbuf.out) to[R=270R] ++(0.,-2) to[leDo] ++(0,-2) coordinate (muteled GND \i);
+    \draw (PISO1 \a -| mute \i) -- ++(\i,0) -- ++(-10,0) coordinate (inter)
+    (PISO1 GND -| inter) node[buffer,rotate=270] (ledbuf) {} (inter) -- (ledbuf.in)
+    (ledbuf.out)  to[R=270R] ++(0.,-3) to[leDo] (inter |- GND) coordinate (muteled GND \i);
   }
   \foreach \i in {1,2,3} { \draw (mute GND \i) to[short,-*] (muteled GND \i);}
   \draw (mute GND) to[short] (muteled GND 4);
