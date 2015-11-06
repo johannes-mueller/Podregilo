@@ -14,7 +14,6 @@ const byte latchPin_out = 6;
 const byte dataPin_out = 5;
 const byte clockPin_out = 7;
 
-
 const byte channelnum = 4;
 
 const byte outbuflen = 1;
@@ -22,9 +21,48 @@ byte outbuf[outbuflen] = { 0b11011011 };//, 0b01010101, 0b01000001, 0b10101010 }
 
 const byte levelind = 0;
 
-enum LedState { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
+unsigned long lastMeterUpdate;
 
-long lastMeterUpdate;
+
+enum LEDcolor { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
+enum LEDstate { off = false, on = true };
+
+typedef struct
+{
+        bool state, oldState;
+        unsigned long lastChangeTime;
+        unsigned int blinkTime;
+        byte pin;
+} LED;
+
+LED diagRed = { off,off, 0, 0, 11 };
+LED diagGreen = { off,off, 0, 0, 12 };
+
+void execLED(LED *l)
+{
+        unsigned long time = millis();
+
+        if (l->blinkTime && (time >  l->lastChangeTime+l->blinkTime))
+                l->state = !l->state;
+
+        if (l->state != l->oldState) {
+                digitalWrite(l->pin, l->state);
+                l->oldState = l->state;
+                l->lastChangeTime = time;
+        }
+}
+
+void setLED(LED *l, LEDstate state)
+{
+        l->state = state;
+        l->blinkTime = 0;
+}
+
+void blinkLED(LED *l, unsigned int period)
+{
+        l->blinkTime = period;
+}
+
 
 
 void setup()
@@ -36,9 +74,12 @@ void setup()
 	pinMode(latchPin_out,OUTPUT);
 	pinMode(clockPin_out,OUTPUT);
 	pinMode(dataPin_out,OUTPUT);
-	Serial.begin(9600);
-}
 
+        pinMode(diagRed.pin, OUTPUT);
+        pinMode(diagGreen.pin, OUTPUT);
+
+        Serial.begin(9600);
+}
 
 void passButtonState()
 {
