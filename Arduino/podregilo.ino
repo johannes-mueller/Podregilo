@@ -64,6 +64,56 @@ void blinkLED(LED *l, unsigned int period)
 }
 
 
+typedef struct
+{
+        unsigned long probeTime;
+        bool answerReceived;
+} Prober;
+
+Prober prober = { 0, false };
+
+const unsigned int probePeriod = 10000;
+const unsigned int probeTimeOut = 1000;
+
+void sendProbe()
+{
+        Serial.write('?');
+        prober.answerReceived = false;
+        prober.probeTime = millis();
+}
+
+bool haveConnection()
+{
+        static bool optimistic = true;
+
+        if (prober.answerReceived) {
+                if (!prober.probeTime | millis() - prober.probeTime > probePeriod) {
+                        sendProbe();
+                        optimistic = true;
+                }
+                setLED(&diagGreen, on);
+                setLED(&diagRed, off);
+                return true;
+        }
+
+        if (millis() > prober.probeTime + probeTimeOut) {
+                setLED(&diagGreen, off);
+                blinkLED(&diagRed, 200);
+                sendProbe();
+                optimistic = false;
+
+                return false;
+        }
+
+        if (optimistic) {
+                setLED(&diagRed, on);
+                setLED(&diagGreen, off);
+        }
+
+        return true;
+}
+
+
 
 void setup()
 {
@@ -143,6 +193,9 @@ void checkSerialBuffer()
         case 'l':
                 adjustLevels();
                 break;
+        case '!':
+                prober.answerReceived = true;
+                break;
         default:
                 break;
                 // FIXME: error handling
@@ -168,10 +221,18 @@ void shiftOutData()
 	digitalWrite(latchPin_out, HIGH);
 }
 
+
+
 void loop()
 {
-	passButtonState();
+        execLED(&diagRed);
+        execLED(&diagGreen);
+
 	checkSerialBuffer();
+        if (!haveConnection())
+                return;
+
+        passButtonState();
 	shiftOutData();
 
         if (millis()-lastMeterUpdate > 200)

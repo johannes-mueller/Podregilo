@@ -48,8 +48,13 @@ class ArduinoConnection(Protocol):
         self.transport.write(data)
 
     def dataReceived(self,data):
-#        print "received", len(data), "bytes, total", len(self.data), "expecting", self.bytesExpected
+        if data[0] == '?':
+            print "Probe received"
+            self.transport.write('!')
+            return
+
         self.data += data
+#        print "received", len(data), "bytes, total", len(self.data), "expecting", self.bytesExpected
         if (len(self.data) > self.bytesExpected):
             print "*** Too many bytes, got %d, expected %d." % (len(self.data), self.bytesExpected)
             self.data = []
@@ -125,7 +130,6 @@ class JackClient():
             m = max(m1,m2)
             if m > 1.:
                 m = 1.
-            print int(m*255)
             data += chr(int(m*255))
 
         arduino.sendData(data)
