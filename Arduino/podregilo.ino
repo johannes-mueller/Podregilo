@@ -16,13 +16,17 @@ const byte clockPin_out = 7;
 
 const byte channelnum = 4;
 
-const byte outbuflen = 1;
-byte outbuf[outbuflen] = { 0b11011011 };//, 0b01010101, 0b01000001, 0b10101010 };
+const byte outbuflen = 4;
+byte outbuf[outbuflen];
 
-const byte levelind = 0;
+
+const byte levelind = 3;
 
 unsigned long lastMeterUpdate;
 
+unsigned int secondsDAW = 0;
+
+bool haveDAWConnection = false;
 
 enum LEDcolor { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
 enum LEDstate { off = false, on = true };
@@ -37,6 +41,10 @@ typedef struct
 
 LED diagRed = { off,off, 0, 0, 11 };
 LED diagGreen = { off,off, 0, 0, 12 };
+
+LED recEnable = { off,off, 0, 0, 10 };
+LED startStop = { off,off, 0, 0, 9 };
+
 
 void execLED(LED *l)
 {
@@ -110,26 +118,11 @@ bool haveConnection()
                 setLED(&diagGreen, off);
         }
 
-        return true;
+        return false;
 }
 
 
 
-void setup()
-{
-	pinMode(latchPin_in,OUTPUT);
-	pinMode(clockPin_in,OUTPUT);
-	pinMode(dataPin_in,INPUT);
-
-	pinMode(latchPin_out,OUTPUT);
-	pinMode(clockPin_out,OUTPUT);
-	pinMode(dataPin_out,OUTPUT);
-
-        pinMode(diagRed.pin, OUTPUT);
-        pinMode(diagGreen.pin, OUTPUT);
-
-        Serial.begin(9600);
-}
 
 void passButtonState()
 {
@@ -222,13 +215,88 @@ void shiftOutData()
 }
 
 
+void updateDisplay()
+{
+        static const byte sevenSegment[] = {
+                0b00000001, // 0
+                0b01001111, // 1
+                0b00010010, // 2
+                0b00000110, // 3
+                0b01001100, // 4
+                0b00100100, // 5
+                0b00100000, // 6
+                0b00001111, // 7
+                0b00000000, // 8
+                0b00000100, // 9
+        };
+
+        static const byte digit1 = 2;
+        static const byte digit2 = 0;
+        static const byte digit3 = 1;
+
+        static const byte minus = 0b01111110;
+
+        if (!haveDAWConnection) {
+                outbuf[digit1] = minus;
+                outbuf[digit2] = minus;
+                outbuf[digit3] = minus;
+
+                return;
+        }
+
+        byte hours  = secondsDAW / 3600;
+        byte minutes = (secondsDAW - hours*3600)/60;
+
+        if (hours > 9)
+                outbuf[digit1] = minus;
+        else
+                outbuf[digit1] = sevenSegment[hours];
+
+        byte tens = minutes/10;
+        byte ones = (minutes - tens*10);
+
+        outbuf[digit2] = sevenSegment[tens];
+        outbuf[digit3] = sevenSegment[ones];
+
+
+}
+
+
+void setup()
+{
+	pinMode(latchPin_in,OUTPUT);
+	pinMode(clockPin_in,OUTPUT);
+	pinMode(dataPin_in,INPUT);
+
+	pinMode(latchPin_out,OUTPUT);
+	pinMode(clockPin_out,OUTPUT);
+	pinMode(dataPin_out,OUTPUT);
+
+        pinMode(diagRed.pin, OUTPUT);
+        pinMode(diagGreen.pin, OUTPUT);
+        pinMode(recEnable.pin, OUTPUT);
+        pinMode(startStop.pin, OUTPUT);
+
+        Serial.begin(9600);
+
+        setLED(&recEnable, on);
+
+        updateDisplay();
+        shiftOutData();
+
+
+}
+
 
 void loop()
 {
         execLED(&diagRed);
         execLED(&diagGreen);
+        execLED(&recEnable);
+        execLED(&startStop);
 
 	checkSerialBuffer();
+
         if (!haveConnection())
                 return;
 
