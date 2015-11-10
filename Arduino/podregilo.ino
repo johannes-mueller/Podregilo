@@ -27,6 +27,7 @@ unsigned long lastMeterUpdate;
 unsigned int secondsDAW = 0;
 
 bool haveDAWConnection = false;
+unsigned long lastDAWConnectionTime = 0;
 
 enum LEDcolor { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
 enum LEDstate { off = false, on = true };
@@ -120,8 +121,6 @@ bool haveConnection()
 }
 
 
-
-
 void passButtonState()
 {
 	static unsigned int oldData = 0;
@@ -187,6 +186,9 @@ void updateSeconds()
 
         for (byte i=0; i<bytenum; i++)
                 secondsDAW |= (buffer[i] << 8*i);
+
+        haveDAWConnection = true;
+        lastDAWConnectionTime = millis();
 }
 
 
@@ -315,9 +317,13 @@ void loop()
                 return;
 
         passButtonState();
+        updateDisplay();
 	shiftOutData();
 
-        if (millis()-lastMeterUpdate > 200)
+        unsigned long time = millis();
+        if (time-lastMeterUpdate > 200)
                 outbuf[levelind] = 0b00000000;
 
+        if (time-lastDAWConnectionTime > 2000)
+                haveDAWConnection = false;
 }
