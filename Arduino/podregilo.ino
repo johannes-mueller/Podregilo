@@ -31,22 +31,22 @@ bool haveDAWConnection = false;
 enum LEDcolor { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
 enum LEDstate { off = false, on = true };
 
-typedef struct
+struct LED
 {
         bool state, oldState;
         unsigned long lastChangeTime;
         unsigned int blinkTime;
         byte pin;
-} LED;
+};
 
-LED diagRed = { off,off, 0, 0, 11 };
-LED diagGreen = { off,off, 0, 0, 12 };
+struct LED diagRed = { off,off, 0, 0, 11 };
+struct LED diagGreen = { off,off, 0, 0, 12 };
 
-LED recEnable = { off,off, 0, 0, 10 };
-LED startStop = { off,off, 0, 0, 9 };
+struct LED recEnable = { off,off, 0, 0, 10 };
+struct LED startStop = { off,off, 0, 0, 9 };
 
 
-void execLED(LED *l)
+void execLED(struct LED *l)
 {
         unsigned long time = millis();
 
@@ -60,25 +60,23 @@ void execLED(LED *l)
         }
 }
 
-void setLED(LED *l, LEDstate state)
+void setLED(struct LED *l, LEDstate state)
 {
         l->state = state;
         l->blinkTime = 0;
 }
 
-void blinkLED(LED *l, unsigned int period)
+void blinkLED(struct LED *l, unsigned int period)
 {
         l->blinkTime = period;
 }
 
 
-typedef struct
+struct Prober
 {
         unsigned long probeTime;
         bool answerReceived;
-} Prober;
-
-Prober prober = { 0, false };
+} prober = { 0, false };
 
 const unsigned int probePeriod = 10000;
 const unsigned int probeTimeOut = 1000;
@@ -95,7 +93,7 @@ bool haveConnection()
         static bool optimistic = true;
 
         if (prober.answerReceived) {
-                if (!prober.probeTime | millis() - prober.probeTime > probePeriod) {
+                if (!prober.probeTime | (millis() - prober.probeTime > probePeriod)) {
                         sendProbe();
                         optimistic = true;
                 }
@@ -257,8 +255,6 @@ void updateDisplay()
 
         outbuf[digit2] = sevenSegment[tens];
         outbuf[digit3] = sevenSegment[ones];
-
-
 }
 
 
@@ -283,8 +279,6 @@ void setup()
 
         updateDisplay();
         shiftOutData();
-
-
 }
 
 
