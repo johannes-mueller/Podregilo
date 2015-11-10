@@ -4,7 +4,7 @@
 For now there's not very much docu yet. We are working on the code.
 """
 
-from twisted.internet import reactor
+from twisted.internet import reactor, protocol
 from twisted.internet.protocol import Factory, Protocol
 from twisted.internet.serialport import SerialPort
 from txosc import async
@@ -13,6 +13,8 @@ from txosc import osc
 
 import jack
 import numpy as np
+import socket
+import struct
 
 import sys
 
@@ -26,6 +28,45 @@ __status__ = "Proof of concept"
 channelnum = 4
 
 arduino = None
+
+
+class Int64Argument(osc.Argument):
+    """An L{Argument} representing a 64-bit signed integer.
+
+    This is derived from IntArgument of the txosc module. Will place a
+    pullrequest to txosc soon.
+    """
+    typeTag = "h"
+
+    def _check_type(self):
+        if type(self.value) not in [int, long]:
+            raise TypeError("Value %s must be an integer or a long, not a %s." % (self.value, type(self.value).__name__))
+
+    def toBinary(self):
+        if self.value >= 1<<63:
+            raise OverflowError("Integer too large: %d" % self.value)
+        if self.value < -1<<63:
+            raise OverflowError("Integer too small: %d" % self.value)
+        return struct.pack(">i", int(self.value))
+
+
+    @staticmethod
+    def fromBinary(data):
+        try:
+            i = struct.unpack(">q", data[:8])[0]
+            leftover = data[8:]
+        except struct.error:
+            raise osc.OscError("Too few bytes left to get an int from %s." % (data))
+            #FIXME: do not raise error and return leftover anyways ?
+        return Int64Argument(i), leftover
+
+    def __int__(self):
+        return int(self.value)
+
+
+osc._tags['h'] = Int64Argument
+osc._types[long] = Int64Argument
+
 
 def dummyCallback(state):
     pass
@@ -90,15 +131,29 @@ class ButtonHandler():
                 self.buttons[i] = bs
 
 
-class OSCSender(object):
+class OSCSender(protocol.DatagramProtocol):
     def __init__(self, host="127.0.0.1", port=3819):
         self.port = port
         self.host = host
-        self.client = async.DatagramClientProtocol()
-        reactor.listenUDP(0,self.client)
+        reactor.listenUDP(0,self)
+        self.pollTime()
+
+    def pollTime(self):
+        m = osc.Message("/ardour/transport_frame")
+        self.sendMessage(m)
+        print "Sent %s to %s:%s" %(m,self.host,self.port)
+        reactor.callLater(0.1, self.pollTime)
+
+
+    def datagramReceived(self, data, (host, port)):
+        print "datagramReceived"
+        print repr(data)
+        print int(data[-8:].encode('hex'),16)
+        element = _elementFromBinary(data)
+        print repr(element)
 
     def sendMessage(self,message):
-        self.client.send(message, (self.host, self.port))
+        self.transport.write(message.toBinary(), (socket.gethostbyname(self.host), self.port))
         print message
 
     def handleMuteButton(self,i,bs):
