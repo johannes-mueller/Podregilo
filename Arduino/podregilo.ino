@@ -173,6 +173,23 @@ void adjustLevels()
 }
 
 
+void updateSeconds()
+{
+        static const byte bytenum = 4;
+        char buffer[bytenum];
+
+        byte n = Serial.readBytes(buffer, bytenum);
+        if (n!=bytenum)
+                return;
+        // FIXME: error handling
+
+        secondsDAW = 0;
+
+        for (byte i=0; i<bytenum; i++)
+                secondsDAW |= (buffer[i] << 8*i);
+}
+
+
 void checkSerialBuffer()
 {
 	if (!Serial.available())
@@ -183,6 +200,9 @@ void checkSerialBuffer()
         switch(c) {
         case 'l':
                 adjustLevels();
+                break;
+        case 't':
+                updateSeconds();
                 break;
         case '!':
                 prober.answerReceived = true;
