@@ -5,7 +5,8 @@
 *
 */
 
-
+//! Define in/out pins of Arduino
+//!
 const byte latchPin_in = 3;
 const byte dataPin_in = 4;
 const byte clockPin_in = 2;
@@ -14,20 +15,33 @@ const byte latchPin_out = 6;
 const byte dataPin_out = 5;
 const byte clockPin_out = 7;
 
+
+//! number of audio channel (podcasting voices)
 const byte channelnum = 4;
 
+
+/** The output buffer.
+
+    We need 4 bytes to shift out. The last one to transport the meter
+    levels. The three others transport the time code to the seven
+    segment displays.
+ */
 const byte outbuflen = 4;
 byte outbuf[outbuflen];
 
-
+//! The index of the meter level byte.
 const byte levelind = 3;
 
+//! The time of the last level meter update
 unsigned long lastMeterUpdate;
 
+//! The DAW timecode in seconds
 unsigned int secondsDAW = 0;
 
+//! Is there at the moment or when was the last signal from the DAW
 bool haveDAWConnection = false;
 unsigned long lastDAWConnectionTime = 0;
+
 
 enum LEDcolor { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
 enum LEDstate { off = false, on = true };
