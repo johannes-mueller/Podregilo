@@ -114,12 +114,20 @@ def dummyHandleButton(i,bs):
 
 class JackClient():
     def __init__(self):
-        self.jc = jack.Client("podregilo")
-        self.ports = []
-        for i in range(channelnum):
-            self.ports.append(self.jc.inports.register("vocxo-"+str(i+1)))
-        self.jc.set_process_callback(self.process)
-        self.jc.activate()
+        self.initialize()
+
+    def initialize(self):
+        try:
+            self.jc = jack.Client("podregilo", no_start_server=True)
+            self.ports = []
+            for i in range(channelnum):
+                self.ports.append(self.jc.inports.register("vocxo-"+str(i+1)))
+                self.jc.set_process_callback(self.process)
+            self.jc.activate()
+        except jack.JackError:
+            print "Could not connect to jackd. Will try again in 10 seconds."
+            reactor.callLater(10, self.initialize)
+
 
     def process(self,frames):
         data = "l"
