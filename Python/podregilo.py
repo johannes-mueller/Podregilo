@@ -30,6 +30,7 @@ channelnum = 4
 arduino = None
 
 
+
 class Int64Argument(osc.Argument):
     """An L{Argument} representing a 64-bit signed integer.
 
@@ -64,6 +65,18 @@ class Int64Argument(osc.Argument):
         return int(self.value)
 
 
+def elementFromBinary(data):
+    if data[0] == "/":
+        element, data = osc.Message.fromBinary(data)
+    elif data.startswith("#bundle"):
+        element, data = osc.Bundle.fromBinary(data)
+    elif data.startswith("#reply"):
+        element, data = osc.Message.fromBinary(data)
+    else:
+        raise OscError("Error parsing OSC data: " + data)
+    return element
+
+
 osc._tags['h'] = Int64Argument
 osc._types[long] = Int64Argument
 
@@ -88,12 +101,18 @@ class ArduinoConnection(Protocol):
     def sendData(self, data):
         self.transport.write(data)
 
+    def sendTime(self, seconds):
+        data = "t"
+        for i in range(2):
+            data += chr((seconds >> 8*i) & 0b11111111)
+
+        self.transport.write(data)
+
     def dataReceived(self,data):
         if data[0] == '?':
             print "Probe received"
             self.transport.write('!')
             return
-
         self.data += data
 #        print "received", len(data), "bytes, total", len(self.data), "expecting", self.bytesExpected
         if (len(self.data) > self.bytesExpected):
@@ -132,29 +151,38 @@ class ButtonHandler():
 
 
 class OSCSender(protocol.DatagramProtocol):
+
+
     def __init__(self, host="127.0.0.1", port=3819):
         self.port = port
         self.host = host
         reactor.listenUDP(0,self)
+
+        self.frameRate = 48000
+        self.queryRouteList()
         self.pollTime()
+
+    def queryRouteList(self):
+        self.sendMessage(osc.Message("/routes/list"))
 
     def pollTime(self):
         m = osc.Message("/ardour/transport_frame")
         self.sendMessage(m)
-        print "Sent %s to %s:%s" %(m,self.host,self.port)
         reactor.callLater(0.1, self.pollTime)
 
-
     def datagramReceived(self, data, (host, port)):
-        print "datagramReceived"
-        print repr(data)
-        print int(data[-8:].encode('hex'),16)
-        element = _elementFromBinary(data)
-        print repr(element)
+        element = elementFromBinary(data)
+        if element.address == "/ardour/transport_frame":
+            arduino.sendTime(int(element.getValues()[0])/self.frameRate)
+        elif element.address == "#reply":
+            self.handleReply(element)
+
+    def handleReply(self, element):
+        if element.getValues()[0] == "end_route_list":
+            self.frameRate = element.getValues()[1]
 
     def sendMessage(self,message):
         self.transport.write(message.toBinary(), (socket.gethostbyname(self.host), self.port))
-        print message
 
     def handleMuteButton(self,i,bs):
         value = 1.

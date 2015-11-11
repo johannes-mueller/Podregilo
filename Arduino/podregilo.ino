@@ -188,18 +188,14 @@ void adjustLevels()
 
 void updateSeconds()
 {
-        static const byte bytenum = 4;
-        char buffer[bytenum];
+        char buffer[2];
+        unsigned int *value = (unsigned int*)&buffer;
 
-        byte n = Serial.readBytes(buffer, bytenum);
-        if (n!=bytenum)
+        byte n = Serial.readBytes(buffer, 2);
+        if (n!=2)
                 return;
-        // FIXME: error handling
 
-        secondsDAW = 0;
-
-        for (byte i=0; i<bytenum; i++)
-                secondsDAW |= (buffer[i] << 8*i);
+        secondsDAW = *(unsigned int*)&buffer;
 
         haveDAWConnection = true;
         lastDAWConnectionTime = millis();
@@ -278,8 +274,8 @@ void updateDisplay()
                 return;
         }
 
-        byte hours  = secondsDAW / 3600;
-        byte minutes = (secondsDAW - hours*3600)/60;
+        unsigned int hours  = secondsDAW / 3600;
+        unsigned int minutes = (secondsDAW - hours*3600)/60;
 
         if (hours > 9)
                 outbuf[digit1] = minus;
@@ -327,8 +323,8 @@ void loop()
 
 	checkSerialBuffer();
 
-        if (!haveConnection())
-                return;
+        //        if (!haveConnection())
+        //        return;
 
         passButtonState();
         updateDisplay();
