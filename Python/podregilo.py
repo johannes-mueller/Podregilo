@@ -191,6 +191,13 @@ class OSCSender(protocol.DatagramProtocol):
         self.sendMessage(osc.Message("/ardour/routes/gainabs", i+1, value))
 
 
+    def handleRecButton(self,i,bs):
+        if bs == 0:
+            return
+        if i == 2:
+            self.sendMessage(osc.Message("/ardour/transport_play"))
+
+
 def dummyHandleButton(i,bs):
     print "Dummy Button Handler %d to %d" %(i,bs)
 
