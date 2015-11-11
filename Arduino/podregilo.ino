@@ -108,7 +108,7 @@ bool haveConnection()
         static bool optimistic = true;
 
         if (prober.answerReceived) {
-                if (!prober.probeTime | (millis() - prober.probeTime > probePeriod)) {
+                if (!prober.probeTime| (millis() - prober.probeTime > probePeriod)) {
                         sendProbe();
                         optimistic = true;
                 }
@@ -323,8 +323,8 @@ void loop()
 
 	checkSerialBuffer();
 
-        //        if (!haveConnection())
-        //        return;
+        if (!haveConnection())
+               return;
 
         passButtonState();
         updateDisplay();
