@@ -233,14 +233,46 @@ class JackClient():
         arduino.sendData(data)
 
 
+import pypm
+import time
+
+class JingleTrigger:
+
+    def __init__(self):
+        for id in range(pypm.CountDevices()):
+            interf,name,inp,outp,opened = pypm.GetDeviceInfo(id)
+            if (outp == 1 and name == "Midi Through Port-0"):
+                self.midi_out = pypm.Output(id,0)
+                break
+        if self.midi_out == None:
+            raise Exception("No output device "+device+" found ...")
+
+    def playJingle(self,num, bs):
+        if bs == 0:
+            cmd = 0x80
+        else:
+            cmd = 0x90
+        print num
+        self.jingle = num
+        self.midi_out.Write([[[cmd,num,127],pypm.Time()]])
+        time.sleep(0.1)
+        self.midi_out.Write([[[cmd,0,0],pypm.Time()]])
+
+
+
+
 if __name__ == "__main__":
     SerialPort(ArduinoConnection(), '/dev/ttyUSB0', reactor, 9600)
     oscs = OSCSender()
     MbH = ButtonHandler()
     JbH = ButtonHandler()
+    RbH = ButtonHandler()
     MbH.setCallback(oscs.handleMuteButton)
-    JbH.setCallback(dummyHandleButton)
+    RbH.setCallback(oscs.handleRecButton)
     arduino.setCallback(3,MbH.buttonsChanged)
     arduino.setCallback(2,JbH.buttonsChanged)
+    arduino.setCallback(0,RbH.buttonsChanged)
     jc = JackClient()
+    jt = JingleTrigger()
+    JbH.setCallback(jt.playJingle)
     reactor.run()
