@@ -172,11 +172,13 @@ class OSCSender(protocol.DatagramProtocol):
         self.sendMessage(osc.Message("/routes/list"))
 
     def pollTime(self):
-        m = osc.Message("/ardour/transport_frame")
-        self.sendMessage(m)
+        self.sendMessage(osc.Message("/ardour/transport_frame"))
+        self.sendMessage(osc.Message("/ardour/transport_speed/#current_value"))
         reactor.callLater(0.1, self.pollTime)
 
     def datagramReceived(self, data, (host, port)):
+        print data
+        return
         element = elementFromBinary(data)
         if element.address == "/ardour/transport_frame":
             arduino.sendTime(int(element.getValues()[0])/self.frameRate)
