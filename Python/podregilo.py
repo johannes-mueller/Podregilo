@@ -11,7 +11,7 @@ from txosc import async
 
 from txosc import osc
 
-import jack
+import jack as JACK
 import numpy as np
 import socket
 import struct
@@ -28,7 +28,7 @@ __status__ = "Proof of concept"
 channelnum = 4
 
 arduino = None
-
+jack = None
 
 
 class Int64Argument(osc.Argument):
@@ -94,6 +94,14 @@ class ArduinoConnection(Protocol):
         self.buttonCallback = [ dummyCallback, dummyCallback, dummyCallback, dummyCallback ]
         self.data = []
         self.bytesExpected = 2
+        self.pollJackLevels()
+
+    def pollJackLevels(self):
+        if jack is None:
+            reactor.callLater(1,self.pollJackLevels)
+            return
+        self.transport.write('l'+jack.getLevelData())
+        reactor.callLater(0.1, self.pollJackLevels)
 
     def setCallback(self,i,func):
         self.buttonCallback[i] = func
@@ -151,8 +159,6 @@ class ButtonHandler():
 
 
 class OSCSender(protocol.DatagramProtocol):
-
-
     def __init__(self, host="127.0.0.1", port=3819):
         self.port = port
         self.host = host
@@ -210,29 +216,33 @@ class JackClient():
 
     def initialize(self):
         try:
-            self.jc = jack.Client("podregilo", no_start_server=True)
+            self.jc = JACK.Client("podregilo", no_start_server=True)
             self.ports = []
             for i in range(channelnum):
                 self.ports.append(self.jc.inports.register("vocxo-"+str(i+1)))
                 self.jc.set_process_callback(self.process)
+            self.levelData = [ 0, 0, 0, 0 ]
             self.jc.activate()
-        except jack.JackError:
+        except JACK.JackError:
             print "Could not connect to jackd. Will try again in 10 seconds."
             reactor.callLater(10, self.initialize)
 
+    def getLevelData(self):
+        r = ''
+        for l in self.levelData:
+            r += chr(l)
+        self.levelData = [ 0, 0, 0, 0 ]
+        return r
 
     def process(self,frames):
-        data = "l"
-        for p in self.ports:
+        for i,p in enumerate(self.ports):
             audio = p.get_array()
             m1 = np.max(audio)
             m2 = -np.min(audio)
             m = max(m1,m2)
             if m > 1.:
                 m = 1.
-            data += chr(int(m*255))
-
-        arduino.sendData(data)
+            self.levelData[i] = max(self.levelData[i],int(m*255))
 
 
 import pypm
@@ -268,7 +278,7 @@ if __name__ == "__main__":
     arduino.setCallback(3,MbH.buttonsChanged)
     arduino.setCallback(2,JbH.buttonsChanged)
     arduino.setCallback(0,RbH.buttonsChanged)
-    jc = JackClient()
+    jack = JackClient()
     jt = JingleTrigger()
     JbH.setCallback(jt.playJingle)
     reactor.run()
