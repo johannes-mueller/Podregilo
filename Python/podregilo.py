@@ -236,10 +236,8 @@ class JackClient():
 
 
 import pypm
-import time
 
 class JingleTrigger:
-
     def __init__(self):
         for id in range(pypm.CountDevices()):
             interf,name,inp,outp,opened = pypm.GetDeviceInfo(id)
@@ -257,10 +255,6 @@ class JingleTrigger:
         print num
         self.jingle = num
         self.midi_out.Write([[[cmd,num,127],pypm.Time()]])
-        time.sleep(0.1)
-        self.midi_out.Write([[[cmd,0,0],pypm.Time()]])
-
-
 
 
 if __name__ == "__main__":
