@@ -195,7 +195,9 @@ class OSCSender(protocol.DatagramProtocol):
         if bs == 0:
             return
         if i == 2:
-            self.sendMessage(osc.Message("/ardour/transport_play"))
+            self.sendMessage(osc.Message("/ardour/access_action", "Transport/ToggleRoll"))
+        elif i == 3:
+            self.sendMessage(osc.Message("/ardour/add_marker"))
 
 
 def dummyHandleButton(i,bs):
