@@ -174,11 +174,11 @@ void adjustLevels()
         for (byte i=0; i<channelnum; i++) {
                 byte v = buffer[i];
 
-                if (v>192)
+                if (v>240)
                         outbuf[levelind] |= (red << 2*i);
-                else if (v>96)
+                else if (v>128)
                         outbuf[levelind] |= (yellow << 2*i);
-                else if (v>64)
+                else if (v>8)
                         outbuf[levelind] |= (green  << 2*i);
         }
 
