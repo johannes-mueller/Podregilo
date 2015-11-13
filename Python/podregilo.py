@@ -78,6 +78,7 @@ def elementFromBinary(data):
 
 
 osc._tags['h'] = Int64Argument
+osc._tags['d'] = osc.FloatArgument
 osc._types[long] = Int64Argument
 
 
@@ -93,6 +94,7 @@ class ArduinoConnection(Protocol):
         self.oldButtonGroup = [ 0b0000, 0b0000, 0b0000, 0b0000 ]
         self.buttonCallback = [ dummyCallback, dummyCallback, dummyCallback, dummyCallback ]
         self.data = []
+        self.messageType = None
         self.bytesExpected = 2
         self.pollJackLevels()
 
@@ -102,6 +104,48 @@ class ArduinoConnection(Protocol):
             return
         self.transport.write('l'+jack.getLevelData())
         reactor.callLater(0.1, self.pollJackLevels)
+
+    def dataReceived(self,data):
+        if self.messageType is None:
+            self.messageType = data[0]
+            if len(data)>1:
+                self.data = data[1:]
+        else:
+            self.data += data
+
+        if self.messageType == "?":
+            print "Probe received"
+            self.transport.write('!')
+            self.messageType = None
+            return
+
+        if self.messageType == 'b':
+            if (len(self.data) > self.bytesExpected):
+                print "*** Too many bytes, got %d, expected %d." % (len(self.data), self.bytesExpected)
+                self.data = []
+                self.messageType = None
+                return
+            if (len(self.data) < self.bytesExpected):
+                return
+
+            bs = [ord(self.data[-1]), ord(self.data[-2])]
+            self.data = []
+            self.messageType = None
+            print '{0:#010b}'.format(bs[0]), '{0:#010b}'.format(bs[1])
+            bGroup = [ bs[0] >> 4, bs[0] & 0b00001111, bs[1] >> 4, bs[1] & 0b00001111 ]
+
+            for i, bg in enumerate(bGroup):
+                if bg != self.oldButtonGroup[i]:
+                    self.buttonCallback[i](bg)
+                    self.oldButtonGroup[i] = bg
+            return
+
+        if self.messageType == 'd' and len(self.data) > 1:
+            if self.data[-1] == "\n":
+                print "DEBUG:", repr(''.join(self.data[:-1]))
+                self.data = []
+                self.messageType = None
+            return
 
     def setCallback(self,i,func):
         self.buttonCallback[i] = func
@@ -113,32 +157,16 @@ class ArduinoConnection(Protocol):
         data = "t"
         for i in range(2):
             data += chr((seconds >> 8*i) & 0b11111111)
-
         self.transport.write(data)
 
-    def dataReceived(self,data):
-        if data[0] == '?':
-            print "Probe received"
-            self.transport.write('!')
-            return
-        self.data += data
-#        print "received", len(data), "bytes, total", len(self.data), "expecting", self.bytesExpected
-        if (len(self.data) > self.bytesExpected):
-            print "*** Too many bytes, got %d, expected %d." % (len(self.data), self.bytesExpected)
-            self.data = []
-            return
-        if (len(self.data) < self.bytesExpected):
-            return
+    def sendSpeed(self, speed):
+        s = "s"+struct.pack("<f",float(speed))
+        self.transport.write(s)
 
-        bs = [ord(self.data[-1]), ord(self.data[-2])]
-        self.data = []
-        print '{0:#010b}'.format(bs[0]), '{0:#010b}'.format(bs[1])
-        bGroup = [ bs[0] >> 4, bs[0] & 0b00001111, bs[1] >> 4, bs[1] & 0b00001111 ]
+    def sendRecEnabled(self, state):
+        s = "r"+chr(state & 0b11111111)
+        self.transport.write(s)
 
-        for i, bg in enumerate(bGroup):
-            if bg != self.oldButtonGroup[i]:
-                self.buttonCallback[i](bg)
-                self.oldButtonGroup[i] = bg
 
 
 class ButtonHandler():
@@ -159,10 +187,17 @@ class ButtonHandler():
 
 
 class OSCSender(protocol.DatagramProtocol):
+
     def __init__(self, host="127.0.0.1", port=3819):
         self.port = port
         self.host = host
         reactor.listenUDP(0,self)
+
+        self._replyDict = {
+            "/ardour/transport_frame": self.transport_frame,
+            "/ardour/transport_speed": self.transport_speed,
+            "/ardour/record_enabled": self.record_enabled
+        }
 
         self.frameRate = 48000
         self.queryRouteList()
@@ -173,17 +208,25 @@ class OSCSender(protocol.DatagramProtocol):
 
     def pollTime(self):
         self.sendMessage(osc.Message("/ardour/transport_frame"))
-        self.sendMessage(osc.Message("/ardour/transport_speed/#current_value"))
+        self.sendMessage(osc.Message("/ardour/transport_speed"))
+        self.sendMessage(osc.Message("/ardour/record_enabled"))
         reactor.callLater(0.1, self.pollTime)
 
     def datagramReceived(self, data, (host, port)):
-        print data
-        return
         element = elementFromBinary(data)
-        if element.address == "/ardour/transport_frame":
-            arduino.sendTime(int(element.getValues()[0])/self.frameRate)
+        if element.address in self._replyDict:
+            self._replyDict[element.address](element)
         elif element.address == "#reply":
             self.handleReply(element)
+
+    def transport_frame(self,element):
+        arduino.sendTime(int(element.getValues()[0])/self.frameRate)
+
+    def transport_speed(self,element):
+        arduino.sendSpeed(element.getValues()[0])
+
+    def record_enabled(self,element):
+        arduino.sendRecEnabled(element.getValues()[0])
 
     def handleReply(self, element):
         if element.getValues()[0] == "end_route_list":
