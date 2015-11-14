@@ -258,6 +258,7 @@ class OSCSender(protocol.DatagramProtocol):
         elif i == 3:
             self.sendMessage(osc.Message("/ardour/add_marker"))
         elif i == 1:
+            self.sendMessage(osc.Message("/ardour/access_action", "Editor/remove-last-capture"))
             self.sendMessage(osc.Message("/ardour/goto_start"))
             if not self.record_is_enabled:
                 self.sendMessage(osc.Message("/ardour/rec_enable_toggle"))
