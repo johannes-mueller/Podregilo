@@ -199,6 +199,9 @@ class OSCSender(protocol.DatagramProtocol):
             "/ardour/record_enabled": self.record_enabled
         }
 
+        self.audiotrack_ids = []
+
+        self.record_is_enabled = False
         self.frameRate = 48000
         self.queryRouteList()
         self.pollTime()
@@ -226,10 +229,15 @@ class OSCSender(protocol.DatagramProtocol):
         arduino.sendSpeed(element.getValues()[0])
 
     def record_enabled(self,element):
+        self.record_is_enabled = bool(element.getValues()[0])
         arduino.sendRecEnabled(element.getValues()[0])
 
     def handleReply(self, element):
-        if element.getValues()[0] == "end_route_list":
+        values = element.getValues()
+        if values[0] == "AT":
+            if not values[6] in self.audiotrack_ids:
+                self.audiotrack_ids.append(values[6])
+        elif values[0] == "end_route_list":
             self.frameRate = element.getValues()[1]
 
     def sendMessage(self,message):
@@ -249,6 +257,13 @@ class OSCSender(protocol.DatagramProtocol):
             self.sendMessage(osc.Message("/ardour/access_action", "Transport/ToggleRoll"))
         elif i == 3:
             self.sendMessage(osc.Message("/ardour/add_marker"))
+        elif i == 1:
+            self.sendMessage(osc.Message("/ardour/goto_start"))
+            if not self.record_is_enabled:
+                self.sendMessage(osc.Message("/ardour/rec_enable_toggle"))
+            for rid in self.audiotrack_ids:
+                self.sendMessage(osc.Message("/ardour/routes/gain_automation", rid, 'w'))
+                self.sendMessage(osc.Message("/ardour/routes/recenable", rid, 1))
 
 
 def dummyHandleButton(i,bs):
