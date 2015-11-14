@@ -368,8 +368,11 @@ void loop()
 
 	checkSerialBuffer();
 
-        if (!haveConnection())
-               return;
+        if (!haveConnection()) {
+                setLED(&speedLED, off);
+                setLED(&recEnableLED, off);
+                return;
+        }
 
         passButtonState();
         updateDisplay();
