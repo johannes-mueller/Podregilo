@@ -42,6 +42,10 @@ unsigned int secondsDAW = 0;
 bool haveDAWConnection = false;
 unsigned long lastDAWConnectionTime = 0;
 
+double transportSpeed;
+
+bool recEnabled;
+
 
 enum LEDcolor { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
 enum LEDstate { off = false, on = true };
@@ -57,8 +61,8 @@ struct LED
 struct LED diagRed = { off,off, 0, 0, 11 };
 struct LED diagGreen = { off,off, 0, 0, 12 };
 
-struct LED recEnable = { off,off, 0, 0, 10 };
-struct LED startStop = { off,off, 0, 0, 9 };
+struct LED recEnableLED = { off,off, 0, 0, 10 };
+struct LED speedLED = { off,off, 0, 0, 9 };
 
 
 void execLED(struct LED *l)
@@ -153,8 +157,10 @@ void passButtonState()
 		digitalWrite(clockPin_in,LOW);
 	}
 
-	if (data != oldData)
+	if (data != oldData) {
+                Serial.write('b');
 		Serial.write((uint8_t*) &data,2);
+        }
 
 	oldData = data;
 }
@@ -185,22 +191,42 @@ void adjustLevels()
         lastMeterUpdate = millis();
 }
 
+union uintBuffer { char buffer[2]; unsigned int s; };
 
 void updateSeconds()
 {
-        char buffer[2];
-        unsigned int *value = (unsigned int*)&buffer;
-
-        byte n = Serial.readBytes(buffer, 2);
+        uintBuffer data;
+        byte n = Serial.readBytes(data.buffer, 2);
         if (n!=2)
                 return;
 
-        secondsDAW = *(unsigned int*)&buffer;
+        secondsDAW = data.s;
 
         haveDAWConnection = true;
         lastDAWConnectionTime = millis();
 }
 
+
+union doubleBuffer { char buffer[sizeof(double)]; double d; };
+
+void updateSpeed()
+{
+        doubleBuffer data;
+        byte n = Serial.readBytes(data.buffer,sizeof(double));
+        if (n!=sizeof(double))
+                return;
+        // FIXME: error handling
+
+        transportSpeed = data.d;
+}
+
+void updateRecEnabled()
+{
+        char b;
+        Serial.readBytes(&b,1);
+
+        recEnabled = (b != '\0');
+}
 
 void checkSerialBuffer()
 {
@@ -215,6 +241,12 @@ void checkSerialBuffer()
                 break;
         case 't':
                 updateSeconds();
+                break;
+        case 's':
+                updateSpeed();
+                break;
+        case 'r':
+                updateRecEnabled();
                 break;
         case '!':
                 prober.answerReceived = true;
@@ -289,6 +321,16 @@ void updateDisplay()
         outbuf[digit3] = sevenSegment[ones];
 }
 
+void updateDAWStateLeds()
+{
+        if (transportSpeed == 0.0)
+                setLED(&speedLED, off);
+        else
+                blinkLED(&speedLED, (unsigned int) 1000.0/transportSpeed);
+
+        setLED(&recEnableLED, LEDstate(recEnabled));
+}
+
 
 void setup()
 {
@@ -302,12 +344,15 @@ void setup()
 
         pinMode(diagRed.pin, OUTPUT);
         pinMode(diagGreen.pin, OUTPUT);
-        pinMode(recEnable.pin, OUTPUT);
-        pinMode(startStop.pin, OUTPUT);
+        pinMode(recEnableLED.pin, OUTPUT);
+        pinMode(speedLED.pin, OUTPUT);
+
+        transportSpeed = 0.0;
+        recEnabled = false;
 
         Serial.begin(9600);
 
-        setLED(&recEnable, on);
+        updateDAWStateLeds();
 
         updateDisplay();
         shiftOutData();
@@ -318,8 +363,8 @@ void loop()
 {
         execLED(&diagRed);
         execLED(&diagGreen);
-        execLED(&recEnable);
-        execLED(&startStop);
+        execLED(&recEnableLED);
+        execLED(&speedLED);
 
 	checkSerialBuffer();
 
@@ -328,6 +373,7 @@ void loop()
 
         passButtonState();
         updateDisplay();
+        updateDAWStateLeds();
 	shiftOutData();
 
         unsigned long time = millis();
