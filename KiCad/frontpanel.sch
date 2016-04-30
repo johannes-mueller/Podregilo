@@ -85,7 +85,7 @@ F 1 "CONN_02X13" V 3400 4150 50  0000 C CNN
 F 2 "Pin_Headers:Pin_Header_Straight_2x13" H 3400 3000 50  0001 C CNN
 F 3 "" H 3400 3000 50  0000 C CNN
 	1    3400 4150
-	1    0    0    -1  
+	-1   0    0    -1  
 $EndComp
 $Comp
 L CONN_02X13 P2
@@ -96,7 +96,7 @@ F 1 "CONN_02X13" V 9350 3950 50  0000 C CNN
 F 2 "Pin_Headers:Pin_Header_Straight_2x13" H 9350 2800 50  0001 C CNN
 F 3 "" H 9350 2800 50  0000 C CNN
 	1    9350 3950
-	1    0    0    -1  
+	-1   0    0    -1  
 $EndComp
 $Comp
 L DIGITAST JSW3
