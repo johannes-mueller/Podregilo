@@ -1,4 +1,4 @@
-update=Mo 25 Apr 2016 19:53:03 CEST
+update=So 01 Mai 2016 16:41:41 CEST
 version=1
 last_client=kicad
 [pcbnew]
@@ -23,8 +23,6 @@ ModuleOutlineThickness=0.150000000000
 [cvpcb]
 version=1
 NetIExt=net
-[general]
-version=1
 [eeschema]
 version=1
 LibDir=
@@ -59,3 +57,5 @@ LibName27=atmel
 LibName28=contrib
 LibName29=valves
 LibName30=w_connectors
+[general]
+version=1

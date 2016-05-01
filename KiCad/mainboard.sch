@@ -34,10 +34,10 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
+Title "Podregilo mainboard"
 Date ""
 Rev ""
-Comp ""
+Comp "https://github.com/johannes-mueller/Podregilo"
 Comment1 ""
 Comment2 ""
 Comment3 ""
@@ -742,8 +742,6 @@ F 3 "" H 10950 4100 50  0000 C CNN
 	1    10950 4100
 	1    0    0    -1  
 $EndComp
-Text Notes 8350 7500 2    60   ~ 0
-Podregilo main board
 $Comp
 L GND #PWR07
 U 1 1 571C3761
