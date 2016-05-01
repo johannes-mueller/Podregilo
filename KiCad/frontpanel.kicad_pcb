@@ -13,6 +13,11 @@
   )
 
   (page A4)
+  (title_block
+    (title "Podregilo front panel board")
+    (company http://github.com/johannes-mueller/Podregilo)
+  )
+
   (layers
     (0 F.Cu signal)
     (31 B.Cu signal)

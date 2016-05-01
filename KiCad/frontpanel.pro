@@ -1,4 +1,4 @@
-update=Mo 25 Apr 2016 21:14:11 CEST
+update=So 01 Mai 2016 17:12:16 CEST
 version=1
 last_client=eeschema
 [general]
@@ -60,3 +60,13 @@ LibName26=opto
 LibName27=atmel
 LibName28=contrib
 LibName29=valves
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceForceRefPrefix=0
+SpiceUseNetNumbers=0
+LabSize=60

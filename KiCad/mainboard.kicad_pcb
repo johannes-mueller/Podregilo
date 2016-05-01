@@ -3,7 +3,7 @@
   (general
     (links 173)
     (no_connects 0)
-    (area 88.849999 38.049999 228.650001 121.970001)
+    (area 75.820001 35.651 229.870001 128.430001)
     (thickness 1.6)
     (drawings 19)
     (tracks 862)
@@ -13,6 +13,11 @@
   )
 
   (page A4)
+  (title_block
+    (title "Podregilo mainboard")
+    (company https://github.com/johannes-mueller/Podregilo)
+  )
+
   (layers
     (0 F.Cu signal)
     (31 B.Cu signal)
