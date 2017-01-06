@@ -7,9 +7,9 @@
 
 //! Define in/out pins of Arduino
 //!
-const byte latchPin_in = 3;
-const byte dataPin_in = 4;
-const byte clockPin_in = 2;
+const byte latchPin_in = 4;
+const byte dataPin_in = 2;
+const byte clockPin_in = 3;
 
 const byte latchPin_out = 6;
 const byte dataPin_out = 5;
