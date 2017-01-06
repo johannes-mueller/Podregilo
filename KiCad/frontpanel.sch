@@ -364,30 +364,6 @@ Wire Wire Line
 Wire Wire Line
 	3650 3550 3650 3350
 Wire Wire Line
-	3250 2900 3700 2900
-Wire Wire Line
-	3700 2900 3700 3650
-Wire Wire Line
-	3700 3650 3650 3650
-Wire Wire Line
-	3250 2300 3750 2300
-Wire Wire Line
-	3750 2300 3750 3750
-Wire Wire Line
-	3750 3750 3650 3750
-Wire Wire Line
-	3250 1700 3800 1700
-Wire Wire Line
-	3800 1700 3800 3850
-Wire Wire Line
-	3800 3850 3650 3850
-Wire Wire Line
-	3250 1150 3850 1150
-Wire Wire Line
-	3850 1150 3850 3950
-Wire Wire Line
-	3850 3950 3650 3950
-Wire Wire Line
 	2950 650  2950 3550
 Wire Wire Line
 	2950 3550 3150 3550
@@ -746,4 +722,28 @@ NoConn ~ 8150 2150
 NoConn ~ 9950 2150
 NoConn ~ 10850 2150
 NoConn ~ 8450 750 
+Wire Wire Line
+	3650 3650 3700 3650
+Wire Wire Line
+	3700 3650 3700 1150
+Wire Wire Line
+	3700 1150 3250 1150
+Wire Wire Line
+	3650 3750 3750 3750
+Wire Wire Line
+	3750 3750 3750 1700
+Wire Wire Line
+	3750 1700 3250 1700
+Wire Wire Line
+	3650 3850 3800 3850
+Wire Wire Line
+	3800 3850 3800 2300
+Wire Wire Line
+	3800 2300 3250 2300
+Wire Wire Line
+	3850 3950 3850 2900
+Wire Wire Line
+	3850 2900 3250 2900
+Wire Wire Line
+	3650 3950 3850 3950
 $EndSCHEMATC
