@@ -3,3 +3,5 @@ Arduino/build-nano328
 *.pyc
 *.log
 *bak
+*.gbr
+*.drl
