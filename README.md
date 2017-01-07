@@ -26,9 +26,31 @@ DAW while podcasting. The following features are planned:
 
 # Status
 
-We are in the status of early development. Some first tests and proofs of
-concept.
+## Prototypes
 
+* First prototype on strip board
+
+  The first prototype was soldered and wired completely manually on stripboards
+  using magnet wire for every single comnnection. It was quite a tedious work
+  building it but it has the advantage that we could test and develop it
+  actually while building the first prototype. In the end the prototype worked
+  but turned out to be far to unstable for serious work.
+
+* Second prototype on an etched PCB.
+
+  With what we've learned from the first prototype design, we designed the
+  circuit in KiCad and then designed two PCBs, one for the front panel and one
+  for the actual circuit. These PCBs we had produced by a professional PCB
+  manufacturer. It turned out that we had some bugs in the circuit design which
+  we for the second prototype fixed using a grinding tool and again a bit of
+  magnet wire.
+
+## Current Status
+
+Right now we have the second prototype up and running and plan to use it in
+actual everyday podcasting for a couple of months. Depending on our experiences
+we will either have new PCBs produced or we will add some features, that need
+hardware modifications.
 
 # Used technology
 
