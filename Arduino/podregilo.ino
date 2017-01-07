@@ -160,9 +160,8 @@ void passButtonState()
 	if (data != oldData) {
                 Serial.write('b');
 		Serial.write((uint8_t*) &data,2);
+		oldData = data;
         }
-
-	oldData = data;
 }
 
 
