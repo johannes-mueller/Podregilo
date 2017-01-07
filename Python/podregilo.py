@@ -323,7 +323,6 @@ class JingleTrigger:
             cmd = 0x80
         else:
             cmd = 0x90
-        print num
         self.jingle = num
         self.midi_out.Write([[[cmd,num,127],pypm.Time()]])
 
@@ -337,7 +336,7 @@ if __name__ == "__main__":
     MbH.setCallback(oscs.handleMuteButton)
     RbH.setCallback(oscs.handleRecButton)
     arduino.setCallback(1,MbH.buttonsChanged)
-    arduino.setCallback(0,JbH.buttonsChanged)
+    arduino.setCallback(3,JbH.buttonsChanged)
     arduino.setCallback(2,RbH.buttonsChanged)
     jack = JackClient()
     jt = JingleTrigger()
