@@ -194,9 +194,9 @@ class OSCSender(protocol.DatagramProtocol):
         reactor.listenUDP(0,self)
 
         self._replyDict = {
-            "/ardour/transport_frame": self.transport_frame,
-            "/ardour/transport_speed": self.transport_speed,
-            "/ardour/record_enabled": self.record_enabled
+            "/transport_frame": self.transport_frame,
+            "/transport_speed": self.transport_speed,
+            "/record_enabled": self.record_enabled
         }
 
         self.audiotrack_ids = []
@@ -207,12 +207,12 @@ class OSCSender(protocol.DatagramProtocol):
         self.pollTime()
 
     def queryRouteList(self):
-        self.sendMessage(osc.Message("/routes/list"))
+        self.sendMessage(osc.Message("/strip/list"))
 
     def pollTime(self):
-        self.sendMessage(osc.Message("/ardour/transport_frame"))
-        self.sendMessage(osc.Message("/ardour/transport_speed"))
-        self.sendMessage(osc.Message("/ardour/record_enabled"))
+        self.sendMessage(osc.Message("/transport_frame"))
+        self.sendMessage(osc.Message("/transport_speed"))
+        self.sendMessage(osc.Message("/record_enabled"))
         reactor.callLater(0.1, self.pollTime)
 
     def datagramReceived(self, data, (host, port)):
@@ -244,10 +244,10 @@ class OSCSender(protocol.DatagramProtocol):
         self.transport.write(message.toBinary(), (socket.gethostbyname(self.host), self.port))
 
     def handleMuteButton(self,i,bs):
-        value = 1.
+        value = 0
         if bs:
-            value = 0.
-        self.sendMessage(osc.Message("/ardour/routes/gainabs", i+1, value))
+            value = -193
+        self.sendMessage(osc.Message("/strip/gain", i+1, value))
 
 
     def handleRecButton(self,i,bs):
