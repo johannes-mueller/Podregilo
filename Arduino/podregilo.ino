@@ -11,9 +11,9 @@ const byte latchPin_in = 4;
 const byte dataPin_in = 2;
 const byte clockPin_in = 3;
 
-const byte latchPin_out = 6;
+const byte latchPin_out = 7;
 const byte dataPin_out = 5;
-const byte clockPin_out = 7;
+const byte clockPin_out = 6;
 
 
 //! number of audio channel (podcasting voices)
@@ -47,7 +47,7 @@ double transportSpeed;
 bool recEnabled;
 
 
-enum LEDcolor { dark = 0b00, red = 0b10, green = 0b01, yellow = 0b11 };
+enum LEDcolor { dark = 0b00, red = 0b01, green = 0b10, yellow = 0b11 };
 enum LEDstate { off = false, on = true };
 
 struct LED
@@ -58,11 +58,11 @@ struct LED
         byte pin;
 };
 
-struct LED diagRed = { off,off, 0, 0, 11 };
-struct LED diagGreen = { off,off, 0, 0, 12 };
+struct LED diagRed = { off,off, 0, 0, 9 };
+struct LED diagGreen = { off,off, 0, 0, 8 };
 
-struct LED recEnableLED = { off,off, 0, 0, 10 };
-struct LED speedLED = { off,off, 0, 0, 9 };
+struct LED recEnableLED = { off,off, 0, 0, 11 };
+struct LED speedLED = { off,off, 0, 0, 10 };
 
 
 void execLED(struct LED *l)
@@ -293,8 +293,8 @@ void updateDisplay()
         };
 
         static const byte digit1 = 2;
-        static const byte digit2 = 0;
-        static const byte digit3 = 1;
+        static const byte digit2 = 1;
+        static const byte digit3 = 0;
 
         static const byte minus = 0b01111110;
 
