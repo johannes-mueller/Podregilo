@@ -42,29 +42,29 @@ struct ManagerInternal {
         event_tx: Sender<EventMsg>,
 }
 
-pub struct Manager {
+pub struct Manager<'a> {
         event_tx_mutex: Arc<Mutex<Sender<EventMsg>>>,
         event_rx: Receiver<EventMsg>,
-        dispatcher: Dispatcher,
+        dispatcher: Dispatcher<'a>,
 }
 
-trait Observer<T> {
+pub trait Observer<T> {
         fn signal(&self, data: T);
 }
 
-enum JingleCmd {
+pub enum JingleCmd {
         Stop,
         Play(usize),
         Loop,
         Pause
 }
 
-struct Dispatcher {
-        jingle_observers: Vec<Box<Observer<JingleCmd>>>
+struct Dispatcher<'a> {
+        jingle_observers: Vec<Box<&'a Observer<JingleCmd>>>
 }
 
-impl Dispatcher {
-        fn new() -> Dispatcher {
+impl<'a> Dispatcher<'a> {
+        fn new() -> Dispatcher<'a> {
                 Dispatcher {
                         jingle_observers: vec![]
                 }
@@ -75,10 +75,14 @@ impl Dispatcher {
                         obs.signal(JingleCmd::Play(number));
                 }
         }
+
+        pub fn register_jingle_observer(&mut self, obs: &'a Observer<JingleCmd>) {
+                self.jingle_observers.push(Box::new(obs));
+        }
 }
 
-impl Manager {
-        pub fn new() -> Manager {
+impl<'a> Manager<'a> {
+        pub fn new() -> Manager<'a> {
                 let (event_tx, event_rx): (Sender<EventMsg>, Receiver<EventMsg>) = mpsc::channel();
                 Manager {
                         dispatcher: Dispatcher::new(),
@@ -101,6 +105,9 @@ impl Manager {
                 };
 
                 evt.process(&self.dispatcher);
+        }
+        pub fn dispatcher(&mut self) -> &mut Dispatcher<'a> {
+                &mut self.dispatcher
         }
 }
 
