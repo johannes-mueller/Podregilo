@@ -11,7 +11,7 @@ fn main() {
         println!("main");
 
         let event_manager = event::Manager::new();
-        let mut arduino = arduino::Handler::new("/dev/ttyUSB0", event_manager.clone());
+        let mut arduino = arduino::Handler::new("/dev/ttyUSB0", event_manager.event_queue());
 
         arduino.show_recenabled(true);
         loop {

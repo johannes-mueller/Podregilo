@@ -30,14 +30,14 @@ pub struct Handler {
 }
 
 impl Handler {
-        pub fn new(port_path: &str, event_manager: event::Manager) -> Handler {
+        pub fn new(port_path: &str, event_queue: event::Queue) -> Handler {
                 println!("HAndler");
                 let mut port = match serial::open("/dev/ttyUSB0") {
                         Err(e) => panic!("Could not open serial port: {}", e),
                         Ok(p) => p
                 };
                 let (msg_tx, msg_rx): (Sender<Message>, Receiver<Message>) = mpsc::channel();
-                let mut conn = Connection::new(port, event_manager, msg_rx);
+                let mut conn = Connection::new(port, event_queue, msg_rx);
 
                 let thrd = thread:: spawn( move || { conn.event_loop(); } );
 
@@ -52,17 +52,17 @@ impl Handler {
 
 struct Connection {
         port: serial::posix::TTYPort,
-        event_manager: event::Manager,
+        event_queue: event::Queue,
         msg_rx: Receiver<Message>,
         old_button_state: u16
 }
 
 impl Connection {
         fn new(port: serial::posix::TTYPort,
-               evt_mngr: event::Manager, msg_rx: Receiver<Message>) -> Connection {
+               evt_queue: event::Queue, msg_rx: Receiver<Message>) -> Connection {
                 Connection {
                         port: port,
-                        event_manager: evt_mngr,
+                        event_queue: evt_queue,
                         msg_rx: msg_rx,
                         old_button_state: 0
                 }
@@ -121,7 +121,7 @@ impl Connection {
                                         0 => event::ButtonState::Released,
                                         _ => event::ButtonState::Pressed
                                 };
-                                let evt = Box::new(self.event_manager.button_event(bit, bs));
+                                let evt = Box::new(self.event_queue.button_event(bit, bs));
                         }
                 }
         }
