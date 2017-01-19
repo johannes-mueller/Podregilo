@@ -2,6 +2,8 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
 
+use player;
+
 pub trait Event {
         fn process(&self, dispatcher: &Dispatcher);// -> EventResult;
 }
@@ -52,15 +54,8 @@ pub trait Observer<T> {
         fn signal(&self, data: T);
 }
 
-pub enum JingleCmd {
-        Stop,
-        Play(usize),
-        Loop,
-        Pause
-}
-
 struct Dispatcher<'a> {
-        jingle_observers: Vec<Box<&'a Observer<JingleCmd>>>
+        jingle_observers: Vec<Box<&'a Observer<player::JingleCmd>>>
 }
 
 impl<'a> Dispatcher<'a> {
@@ -72,11 +67,11 @@ impl<'a> Dispatcher<'a> {
 
         fn play_jingle(&self, number: usize) {
                 for obs in &self.jingle_observers {
-                        obs.signal(JingleCmd::Play(number));
+                        obs.signal(player::JingleCmd::Play(number));
                 }
         }
 
-        pub fn register_jingle_observer(&mut self, obs: &'a Observer<JingleCmd>) {
+        pub fn register_jingle_observer(&mut self, obs: &'a Observer<player::JingleCmd>) {
                 self.jingle_observers.push(Box::new(obs));
         }
 }
