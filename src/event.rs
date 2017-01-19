@@ -11,35 +11,6 @@ pub trait Event {
 pub type EventMsg = Box<Event+Send>;
 
 
-#[derive(PartialEq)]
-pub enum ButtonState {
-        Pressed,
-        Released
-}
-
-pub type ButtonNumber = u8;
-
-pub type ButtonChange = (Button, ButtonState);
-
-#[derive(Copy, Clone)]
-pub enum Button {
-        Dummy,
-        Jingle(usize),
-        Rec, Play, AddMark,
-        Mute(usize)
-}
-
-const BUTTONS: [Button; 16] = [
-        Button::Mute(0), Button::Mute(1), Button::Mute(2), Button::Mute(3),
-        Button::Dummy, Button::Dummy, Button::Dummy, Button::Dummy,
-        Button::Jingle(0), Button::Jingle(1), Button::Jingle(2), Button::Jingle(3),
-        Button::Rec, Button::Play, Button::AddMark, Button::Dummy
-];
-
-pub struct ButtonEvent {
-        changed_button: ButtonChange,
-}
-
 struct ManagerInternal {
         event_tx: Sender<EventMsg>,
 }
@@ -111,12 +82,45 @@ pub struct Queue {
 }
 
 impl Queue {
-        pub fn button_event(&self, number: usize, state: ButtonState) {
-                let evt = Box::new(ButtonEvent {
-                        changed_button: (BUTTONS[number], state),
-                });
+        pub fn pass_event(&self, ev: Box<Event+Send>) {
                 let event_tx = self.event_tx_mutex.lock().unwrap();
-                event_tx.send(evt);
+                event_tx.send(ev);
+        }
+}
+
+
+#[derive(PartialEq)]
+pub enum ButtonState {
+        Pressed,
+        Released
+}
+
+pub type ButtonNumber = usize;
+
+pub type ButtonChange = (Button, ButtonState);
+
+#[derive(Copy, Clone)]
+pub enum Button {
+        Dummy,
+        Jingle(usize),
+        Rec, Play, AddMark,
+        Mute(usize)
+}
+
+const BUTTONS: [Button; 16] = [
+        Button::Mute(0), Button::Mute(1), Button::Mute(2), Button::Mute(3),
+        Button::Dummy, Button::Dummy, Button::Dummy, Button::Dummy,
+        Button::Jingle(0), Button::Jingle(1), Button::Jingle(2), Button::Jingle(3),
+        Button::Rec, Button::Play, Button::AddMark, Button::Dummy
+];
+
+pub struct ButtonEvent {
+        changed_button: ButtonChange,
+}
+
+impl ButtonEvent {
+        pub fn new(n: ButtonNumber, s: ButtonState) -> ButtonEvent {
+                ButtonEvent { changed_button: (BUTTONS[n], s) }
         }
 }
 

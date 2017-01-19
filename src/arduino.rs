@@ -121,7 +121,8 @@ impl Connection {
                                         0 => event::ButtonState::Released,
                                         _ => event::ButtonState::Pressed
                                 };
-                                let evt = Box::new(self.event_queue.button_event(bit, bs));
+                                let ev = Box::new(event::ButtonEvent::new(bit, bs));
+                                self.event_queue.pass_event(ev);
                         }
                 }
         }
