@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 mod arduino;
 mod event;
 mod player;
+mod cli;
 
 use event::EventMsg;
 
@@ -15,6 +16,7 @@ fn main() {
         let mut event_manager = event::Manager::new();
         event_manager.dispatcher().register_jingle_observer(&jp);
         let mut arduino = arduino::Handler::new("/dev/ttyUSB0", event_manager.event_queue());
+        let cli = cli::Interface::new(event_manager.event_queue());
 
         arduino.show_recenabled(true);
         loop {

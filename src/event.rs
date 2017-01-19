@@ -25,7 +25,7 @@ pub trait Observer<T> {
         fn signal(&self, data: T);
 }
 
-struct Dispatcher<'a> {
+pub struct Dispatcher<'a> {
         jingle_observers: Vec<Box<&'a Observer<player::JingleCmd>>>
 }
 
