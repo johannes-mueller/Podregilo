@@ -1,25 +1,66 @@
+extern crate argparse;
+use argparse::{ArgumentParser, List};
+
+extern crate wavefile;
+use wavefile::WaveFile;
+
+extern crate itertools;
+
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, RwLock};
 
 mod arduino;
 mod event;
 mod player;
 mod cli;
+mod jack_client;
 
 use event::EventMsg;
 
-fn main() {
-        println!("main");
+fn fill_clips_handle(infiles: Vec<String>, clips_handle: Arc<RwLock<Vec<jack_client::WavData>>>) {
+        let mut clips = clips_handle.write().unwrap();
 
-        let jp = player::JinglePlayer::new();
+        for (i, filename) in itertools::enumerate(&infiles) {
+                println!("Opening file {}: {}", i, filename);
+                let wavefile = match WaveFile::open(filename.to_string()) {
+                        Ok(w) => w,
+                        Err(e) => panic!("{}", e)
+                };
+
+                let mut wavdata = vec![];
+                for frame in wavefile.iter() {
+                        wavdata.push([frame[0] as f32 / 20000., frame[1] as f32 / 20000. ]);
+                }
+                clips.push(wavdata);
+        }
+}
+
+fn parse_args(infiles: &mut Vec<String>) {
+        let mut ap = ArgumentParser::new();
+
+        ap.set_description("Test soundboard ...");
+        ap.refer(infiles).add_argument("input file", List, "WAV file to test").required();
+        ap.parse_args_or_exit();
+}
+
+
+fn main() {
+        let clips_handle = Arc::new(RwLock::new(vec![]));
+        let mut infiles: Vec<String> = vec![];
+        parse_args(&mut infiles);
+        fill_clips_handle(infiles, clips_handle.clone());
+
+        let jack_proxy = jack_client::jack_proxy(clips_handle.clone());
+
+        let jp = player::JinglePlayer::new(&jack_proxy);
+
         let mut event_manager = event::Manager::new();
+
         event_manager.dispatcher().register_jingle_observer(&jp);
         let mut arduino = arduino::Handler::new("/dev/ttyUSB0", event_manager.event_queue());
         let cli = cli::Interface::new(event_manager.event_queue());
 
         arduino.show_recenabled(true);
-        loop {
-                event_manager.process_next();
-        }
+        while event_manager.process_next() { }
 }

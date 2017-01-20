@@ -2,10 +2,12 @@ use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
 
-use player;
+use jack_client;
+
+use cli::QuitEvent;
 
 pub trait Event {
-        fn process(&self, dispatcher: &Dispatcher);// -> EventResult;
+        fn process(&self, dispatcher: &Dispatcher) -> bool;
 }
 
 pub type EventMsg = Box<Event+Send>;
@@ -26,7 +28,7 @@ pub trait Observer<T> {
 }
 
 pub struct Dispatcher<'a> {
-        jingle_observers: Vec<Box<&'a Observer<player::JingleCmd>>>
+        jingle_observers: Vec<Box<&'a Observer<jack_client::ClientCmd>>>
 }
 
 impl<'a> Dispatcher<'a> {
@@ -38,12 +40,18 @@ impl<'a> Dispatcher<'a> {
 
         fn play_jingle(&self, number: usize) {
                 for obs in &self.jingle_observers {
-                        obs.signal(player::JingleCmd::Play(number));
+                        obs.signal(jack_client::ClientCmd::Play(number));
                 }
         }
 
-        pub fn register_jingle_observer(&mut self, obs: &'a Observer<player::JingleCmd>) {
+        pub fn register_jingle_observer(&mut self, obs: &'a Observer<jack_client::ClientCmd>) {
                 self.jingle_observers.push(Box::new(obs));
+        }
+
+        pub fn application_quit(&self) {
+                for obs in &self.jingle_observers {
+                        obs.signal(jack_client::ClientCmd::Quit);
+                }
         }
 }
 
@@ -61,16 +69,16 @@ impl<'a> Manager<'a> {
                         event_tx_mutex: self.event_tx_mutex.clone()
                 }
         }
-        pub fn process_next(&self) {
+        pub fn process_next(&self) -> bool {
                 let evt = match self.event_rx.recv() {
                         Err(e) => {
                                 println!("No event received: {}", e);
-                                return
+                                return true
                         },
                         Ok(ev) => ev
                 };
 
-                evt.process(&self.dispatcher);
+                evt.process(&self.dispatcher)
         }
         pub fn dispatcher(&mut self) -> &mut Dispatcher<'a> {
                 &mut self.dispatcher
@@ -125,7 +133,7 @@ impl ButtonEvent {
 }
 
 impl Event for ButtonEvent {
-        fn process(&self, dispatcher: &Dispatcher) {
+        fn process(&self, dispatcher: &Dispatcher) -> bool{
                 match self.changed_button {
                         (Button::Jingle(number), ButtonState::Pressed)
                                 => dispatcher.play_jingle(number),
@@ -139,5 +147,7 @@ impl Event for ButtonEvent {
                                 => println!("Supposed to unmute channel {}", channel),
                         _ => println!("don't know"),
                 }
+
+                true
         }
 }

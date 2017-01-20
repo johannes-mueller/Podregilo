@@ -2,34 +2,27 @@ use std::sync::mpsc::{Sender,Receiver};
 use std::sync::mpsc;
 
 use event;
+use jack_client;
 
 enum ButtonRelease {
         Released
 }
 
-pub enum JingleCmd {
-        Stop,
-        Play(usize),
-        Loop,
-        Pause
+
+pub struct JinglePlayer<'a> {
+        jack_proxy: &'a jack_client::Proxy
 }
 
-pub struct JinglePlayer {
-        release_tx: Option<Sender<ButtonRelease>>,
-}
-
-impl JinglePlayer {
-        pub fn new() -> JinglePlayer {
+impl<'a> JinglePlayer<'a> {
+        pub fn new(jp: &jack_client::Proxy) -> JinglePlayer {
                 JinglePlayer {
-                        release_tx: None
+                        jack_proxy: jp
                 }
         }
 }
 
-impl event::Observer<JingleCmd> for JinglePlayer {
-        fn signal(&self, cmd: JingleCmd) {
-                match cmd {
-                        _ => println!("Some JingleCmd")
-                }
+impl<'a> event::Observer<jack_client::ClientCmd> for JinglePlayer<'a> {
+        fn signal(&self, cmd: jack_client::ClientCmd) {
+                self.jack_proxy.pass_cmd(cmd)
         }
 }

@@ -27,10 +27,11 @@ impl Interface {
         }
 }
 
-struct QuitEvent;
+pub struct QuitEvent;
 
 impl event::Event for QuitEvent {
-        fn process(&self, dispatcher: &event::Dispatcher) {
-                println!("Supposed to quit");
+        fn process(&self, dispatcher: &event::Dispatcher) -> bool {
+                dispatcher.application_quit();
+                false
         }
 }

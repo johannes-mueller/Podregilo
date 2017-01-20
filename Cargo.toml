@@ -5,3 +5,7 @@ authors = ["Johannes Mueller <github@johannes-mueller.org>"]
 
 [dependencies]
 serial = "0.3"
+jack = "0.2.2"
+wavefile = "0.2.0"
+argparse = "0.2.1"
+itertools = "0.5.8"
