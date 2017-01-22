@@ -13,6 +13,9 @@ pub trait Event {
 
 pub type EventMsg = Box<Event+Send>;
 
+pub enum UIEvent {
+        Quit
+}
 
 struct ManagerInternal {
         event_tx: Sender<EventMsg>,
@@ -29,13 +32,15 @@ pub trait Observer<T> {
 }
 
 pub struct Dispatcher<'a> {
-        jingle_observers: Vec<Box<&'a Observer<JingleButtonEvent>>>
+        jingle_observers: Vec<Box<&'a Observer<JingleButtonEvent>>>,
+        ui_observers: Vec<Box<&'a Observer<UIEvent>>>
 }
 
 impl<'a> Dispatcher<'a> {
         fn new() -> Dispatcher<'a> {
                 Dispatcher {
-                        jingle_observers: vec![]
+                        jingle_observers: vec![],
+                        ui_observers: vec![]
                 }
         }
 
@@ -51,9 +56,13 @@ impl<'a> Dispatcher<'a> {
         }
 
         pub fn application_quit(&self) {
-//                for obs in &self.jingle_observers {
-//                        obs.signal(jack_client::ClientCmd::Quit);
-//                }
+                for obs in &self.ui_observers {
+                        obs.signal(UIEvent::Quit);
+                }
+        }
+
+        pub fn register_ui_observer(&mut self, obs: &'a Observer<UIEvent>) {
+                self.ui_observers.push(Box::new(obs));
         }
 }
 

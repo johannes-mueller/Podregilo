@@ -43,3 +43,12 @@ impl<'a> event::Observer<event::JingleButtonEvent> for JinglePlayer<'a> {
                         }
                 }
 }
+
+impl<'a> event::Observer<event::UIEvent> for JinglePlayer<'a> {
+        fn signal(&self, ev: event::UIEvent) {
+                match ev {
+                        event::UIEvent::Quit => self.jack_proxy.pass_cmd(jack_client::ClientCmd::Quit),
+
+                }
+        }
+}

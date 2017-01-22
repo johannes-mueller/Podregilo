@@ -265,7 +265,6 @@ impl Manager {
 pub struct Proxy {
         cmd_tx_mutex: Arc<Mutex<Sender<ClientCmd>>>,
         client_state: Arc<RwLock<ClientState>>,
-        thread_handle: thread::JoinHandle<()>
 }
 
 impl Proxy {
@@ -280,18 +279,18 @@ impl Proxy {
         }
 }
 
-pub fn jack_proxy(clips_handle: Arc<RwLock<Vec<WavData>>>) -> Proxy {
+pub fn jack_proxy(clips_handle: Arc<RwLock<Vec<WavData>>>) -> (Proxy, thread::JoinHandle<()>) {
         let (cmd_tx, cmd_rx): (Sender<ClientCmd>, Receiver<ClientCmd>) = mpsc::channel();
         let client_state = Arc::new(RwLock::new(ClientState::Idle));
         let cs = client_state.clone();
         let thread_handle = thread::spawn( move | | {
                 register_jack(clips_handle, cmd_rx, cs);
         });
-        Proxy {
+        let pr = Proxy {
                 cmd_tx_mutex: Arc::new(Mutex::new(cmd_tx)),
                 client_state: client_state,
-                thread_handle: thread_handle
-        }
+        };
+        (pr, thread_handle)
 }
 
 fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,

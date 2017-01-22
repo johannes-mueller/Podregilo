@@ -51,16 +51,19 @@ fn main() {
         parse_args(&mut infiles);
         fill_clips_handle(infiles, clips_handle.clone());
 
-        let jack_proxy = jack_client::jack_proxy(clips_handle.clone());
+        let (jack_proxy,  jack_thread) = jack_client::jack_proxy(clips_handle.clone());
 
         let jp = player::JinglePlayer::new(&jack_proxy);
 
         let mut event_manager = event::Manager::new();
 
         event_manager.dispatcher().register_jingle_observer(&jp);
+        event_manager.dispatcher().register_ui_observer(&jp);
         let mut arduino = arduino::Handler::new("/dev/ttyUSB0", event_manager.event_queue());
         let cli = cli::Interface::new(event_manager.event_queue());
 
         arduino.show_recenabled(true);
         while event_manager.process_next() { }
+
+        let _ = jack_thread.join();
 }
