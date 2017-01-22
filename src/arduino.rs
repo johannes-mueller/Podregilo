@@ -95,6 +95,7 @@ impl Connection {
                         match buf[0] {
                                 b'?' => self.answer_probe(),
                                 b'b' => self.button_event(),
+                                b'l' => self.long_press_event(),
                                 b => println!("Unknown signal identifier byte: {}", b as u8)
                         }
                 }
@@ -105,15 +106,18 @@ impl Connection {
                 self.port.write(b"!");
         }
 
-        fn button_event(&mut self) {
+        fn get_button_state(&mut self) -> u16 {
                 let mut buf: [u8; 2] = [0; 2];
                 self.port.read_exact(&mut buf).unwrap();
 
-                let button_state: u16 = ((buf[0] as u16)<< 8) + buf[1] as u16;
+                ((buf[0] as u16)<< 8) + buf[1] as u16
+        }
+
+        fn button_event(&mut self) {
+                let button_state = self.get_button_state();
                 let changed_button: u16 = button_state ^ self.old_button_state;
                 self.old_button_state = button_state;
 
-                let mut mask: u16 = 1;
                 for bit in 0..16 {
                         let mask: u16 = (1 as u16) << bit;
                         if changed_button & mask != 0 {
@@ -122,6 +126,18 @@ impl Connection {
                                         _ => event::ButtonState::Pressed
                                 };
                                 let ev = Box::new(event::ButtonEvent::new(bit, bs));
+                                self.event_queue.pass_event(ev);
+                        }
+                }
+        }
+
+        fn long_press_event(&mut self) {
+                let long_press_state = self.get_button_state();
+
+                for bit in 0..16 {
+                        let mask: u16 = (1 as u16) << bit;
+                        if long_press_state & mask != 0 {
+                                let ev = Box::new(event::ButtonEvent::new(bit, event::ButtonState::LongPressed));
                                 self.event_queue.pass_event(ev);
                         }
                 }

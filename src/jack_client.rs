@@ -34,7 +34,7 @@ struct ClipPosition {
 
 
 #[derive(PartialEq, Copy, Clone)]
-enum ClientState {
+pub enum ClientState {
         Idle,
         Playing(ClipPosition),
         Looping(ClipPosition),
@@ -196,6 +196,7 @@ struct Manager {
         jack_cmd_tx: Sender<ClientCmd>,
         state_rx: Receiver<ClientState>,
         state: ClientState,
+        official_state: Arc<RwLock<ClientState>>
 }
 
 impl Manager {
@@ -240,6 +241,9 @@ impl Manager {
                                 continue;
                         }
                         self.state = new_state;
+                        let mut os = self.official_state.write()
+                                .expect("Could not get write access to ClientState");
+                        *os = new_state;
 
                         match self.state {
                                 ClientState::Idle => println!("Idleing"),
@@ -260,6 +264,7 @@ impl Manager {
 
 pub struct Proxy {
         cmd_tx_mutex: Arc<Mutex<Sender<ClientCmd>>>,
+        client_state: Arc<RwLock<ClientState>>,
         thread_handle: thread::JoinHandle<()>
 }
 
@@ -268,18 +273,30 @@ impl Proxy {
                 let cmd_tx = self.cmd_tx_mutex.lock().expect("Could not get command mutex");
                 cmd_tx.send(cmd);
         }
+
+        pub fn get_jack_state(&self) -> ClientState {
+                let state = self.client_state.read().expect("Could not get read access to client_state.");
+                *state
+        }
 }
 
 pub fn jack_proxy(clips_handle: Arc<RwLock<Vec<WavData>>>) -> Proxy {
         let (cmd_tx, cmd_rx): (Sender<ClientCmd>, Receiver<ClientCmd>) = mpsc::channel();
-        let thread_handle = thread::spawn( move | | { register_jack(clips_handle, cmd_rx); } );
+        let client_state = Arc::new(RwLock::new(ClientState::Idle));
+        let cs = client_state.clone();
+        let thread_handle = thread::spawn( move | | {
+                register_jack(clips_handle, cmd_rx, cs);
+        });
         Proxy {
                 cmd_tx_mutex: Arc::new(Mutex::new(cmd_tx)),
+                client_state: client_state,
                 thread_handle: thread_handle
         }
 }
 
-fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>, cmd_rx: Receiver<ClientCmd>) {
+fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,
+                 cmd_rx: Receiver<ClientCmd>,
+                 client_state: Arc<RwLock<ClientState>>) {
         let (mut client, _status) = match jack::Client::open("sonbreto", jack::client_options::NO_START_SERVER) {
                 Err(_) => panic!("Could not connect to jack."),
                 Ok((s,c)) => (s,c)
@@ -310,6 +327,7 @@ fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>, cmd_rx: Receiver<Clien
                 state_rx: state_rx,
 
                 state: ClientState::Idle,
+                official_state: client_state
         };
 
         manager.event_loop(&active_client);

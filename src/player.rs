@@ -19,10 +19,27 @@ impl<'a> JinglePlayer<'a> {
                         jack_proxy: jp
                 }
         }
+
+        fn button_press(&self, number: usize) {
+                let cmd = match self.jack_proxy.get_jack_state() {
+                        jack_client::ClientState::Idle => jack_client::ClientCmd::Play(number),
+                        jack_client::ClientState::Playing(_) |
+                        jack_client::ClientState::Paused(_) => jack_client::ClientCmd::Pause,
+                        _ => return
+                };
+                self.jack_proxy.pass_cmd(cmd);
+        }
+
+        fn button_long_pressed(&self, number: usize) {
+        }
 }
 
-impl<'a> event::Observer<jack_client::ClientCmd> for JinglePlayer<'a> {
-        fn signal(&self, cmd: jack_client::ClientCmd) {
-                self.jack_proxy.pass_cmd(cmd)
-        }
+impl<'a> event::Observer<event::JingleButtonEvent> for JinglePlayer<'a> {
+        fn signal(&self, ev: event::JingleButtonEvent) {
+                match ev.state {
+                        event::ButtonState::Pressed => self.button_press(ev.number),
+                        event::ButtonState::LongPressed => self.button_long_pressed(ev.number),
+                        _ => {}
+                        }
+                }
 }

@@ -1,3 +1,4 @@
+
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
@@ -28,7 +29,7 @@ pub trait Observer<T> {
 }
 
 pub struct Dispatcher<'a> {
-        jingle_observers: Vec<Box<&'a Observer<jack_client::ClientCmd>>>
+        jingle_observers: Vec<Box<&'a Observer<JingleButtonEvent>>>
 }
 
 impl<'a> Dispatcher<'a> {
@@ -38,20 +39,21 @@ impl<'a> Dispatcher<'a> {
                 }
         }
 
-        fn play_jingle(&self, number: usize) {
+        fn jingle_button_press(&self, number: usize) {
+                let ev = JingleButtonEvent { number: number, state: ButtonState::Pressed };
                 for obs in &self.jingle_observers {
-                        obs.signal(jack_client::ClientCmd::Play(number));
+                        obs.signal(ev);
                 }
         }
 
-        pub fn register_jingle_observer(&mut self, obs: &'a Observer<jack_client::ClientCmd>) {
+        pub fn register_jingle_observer(&mut self, obs: &'a Observer<JingleButtonEvent>) {
                 self.jingle_observers.push(Box::new(obs));
         }
 
         pub fn application_quit(&self) {
-                for obs in &self.jingle_observers {
-                        obs.signal(jack_client::ClientCmd::Quit);
-                }
+//                for obs in &self.jingle_observers {
+//                        obs.signal(jack_client::ClientCmd::Quit);
+//                }
         }
 }
 
@@ -97,10 +99,11 @@ impl Queue {
 }
 
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 pub enum ButtonState {
         Pressed,
-        Released
+        Released,
+        LongPressed
 }
 
 pub type ButtonNumber = usize;
@@ -113,6 +116,12 @@ pub enum Button {
         Jingle(usize),
         Rec, Play, AddMark,
         Mute(usize)
+}
+
+#[derive(Copy, Clone)]
+pub struct JingleButtonEvent {
+        pub number: usize,
+        pub state: ButtonState
 }
 
 const BUTTONS: [Button; 16] = [
@@ -136,7 +145,7 @@ impl Event for ButtonEvent {
         fn process(&self, dispatcher: &Dispatcher) -> bool{
                 match self.changed_button {
                         (Button::Jingle(number), ButtonState::Pressed)
-                                => dispatcher.play_jingle(number),
+                                => dispatcher.jingle_button_press(number),
                         (Button::Jingle(number), ButtonState::Released)
                                 => println!("Released Jingle {}", number),
                         (Button::Rec, ButtonState::Pressed)
