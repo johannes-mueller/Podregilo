@@ -25,12 +25,19 @@ impl<'a> JinglePlayer<'a> {
                         jack_client::ClientState::Idle => jack_client::ClientCmd::Play(number),
                         jack_client::ClientState::Playing(_) |
                         jack_client::ClientState::Paused(_) => jack_client::ClientCmd::Pause,
-                        _ => return
+                        jack_client::ClientState::Looping(_) => jack_client::ClientCmd::ToggleLoop,
                 };
                 self.jack_proxy.pass_cmd(cmd);
         }
 
         fn button_long_pressed(&self, number: usize) {
+                println!("Long press: {}", number);
+                let cmd = match self.jack_proxy.get_jack_state() {
+                        jack_client::ClientState::Playing(_) => jack_client::ClientCmd::ToggleLoop,
+                        jack_client::ClientState::Paused(_) => jack_client::ClientCmd::Stop,
+                        _ => return
+                };
+                self.jack_proxy.pass_cmd(cmd)
         }
 }
 

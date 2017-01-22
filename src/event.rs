@@ -44,8 +44,7 @@ impl<'a> Dispatcher<'a> {
                 }
         }
 
-        fn jingle_button_press(&self, number: usize) {
-                let ev = JingleButtonEvent { number: number, state: ButtonState::Pressed };
+        fn jingle_button_event(&self, ev: JingleButtonEvent) {
                 for obs in &self.jingle_observers {
                         obs.signal(ev);
                 }
@@ -153,8 +152,14 @@ impl ButtonEvent {
 impl Event for ButtonEvent {
         fn process(&self, dispatcher: &Dispatcher) -> bool{
                 match self.changed_button {
-                        (Button::Jingle(number), ButtonState::Pressed)
-                                => dispatcher.jingle_button_press(number),
+                        (Button::Jingle(number), ButtonState::Pressed) => {
+                                let ev = JingleButtonEvent { number: number, state: ButtonState::Pressed };
+                                dispatcher.jingle_button_event(ev);
+                        },
+                        (Button::Jingle(number), ButtonState::LongPressed) => {
+                                let ev = JingleButtonEvent { number: number, state: ButtonState::LongPressed };
+                                dispatcher.jingle_button_event(ev);
+                        },
                         (Button::Jingle(number), ButtonState::Released)
                                 => println!("Released Jingle {}", number),
                         (Button::Rec, ButtonState::Pressed)
