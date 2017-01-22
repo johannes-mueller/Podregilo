@@ -15,6 +15,7 @@ const byte latchPin_out = 7;
 const byte dataPin_out = 5;
 const byte clockPin_out = 6;
 
+static const unsigned int LONG_PRESS_TIMEOUT = 1000;
 
 //! number of audio channel (podcasting voices)
 const byte channelnum = 4;
@@ -142,26 +143,53 @@ bool haveConnection()
 void passButtonState()
 {
 	static unsigned int oldData = 0;
+	static unsigned int old_long_press = 0;
+	static unsigned long press_times[16] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
 	unsigned int data = 0;
+	unsigned int long_press = 0;
 
 	digitalWrite(latchPin_in,LOW);
 	delayMicroseconds(1);
 	digitalWrite(latchPin_in,HIGH);
 
 	for (unsigned int i=0; i<8*sizeof(data); i++) {
-		unsigned int bitval = digitalRead(dataPin_in);
-		data |= (bitval << ((8*sizeof(data)-1)-i));
+		unsigned int bitval = digitalRead(dataPin_in) << ((8*sizeof(data)-1)-i);
+		data |= bitval;
 
 		digitalWrite(clockPin_in,HIGH);
 		delayMicroseconds(1);
 		digitalWrite(clockPin_in,LOW);
 	}
 
+	for (unsigned int i=0; i<8*sizeof(data); i++) {
+		unsigned int mask = 1 << i;
+		if (data & mask) {
+			if (press_times[i]) {
+				if (millis() - press_times[i] > LONG_PRESS_TIMEOUT) {
+					long_press |= mask;
+				}
+			} else {
+				press_times[i] = millis();
+			}
+		} else {
+			press_times[i] = 0;
+		}
+	}
+
 	if (data != oldData) {
                 Serial.write('b');
-		Serial.write((uint8_t*) &data,2);
+		Serial.write((uint8_t*) &data, 2);
 		oldData = data;
         }
+
+
+	unsigned int change = long_press & (long_press ^ old_long_press);
+	if (change) {
+		Serial.write('l');
+		Serial.write((uint8_t*) &change, 2);
+	}
+	old_long_press = long_press;
 }
 
 
