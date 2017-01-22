@@ -26,11 +26,10 @@ struct Message {
 
 pub struct Handler {
         msg_tx: Sender<Message>,
-        join_handle: thread::JoinHandle<()>
 }
 
 impl Handler {
-        pub fn new(port_path: &str, event_queue: event::Queue) -> Handler {
+        pub fn new(port_path: &str, event_queue: event::Queue) -> (Handler, thread::JoinHandle<()>) {
                 println!("HAndler");
                 let mut port = match serial::open("/dev/ttyUSB0") {
                         Err(e) => panic!("Could not open serial port: {}", e),
@@ -41,7 +40,7 @@ impl Handler {
 
                 let thrd = thread:: spawn( move || { conn.event_loop(); } );
 
-                Handler { msg_tx: msg_tx, join_handle: thrd }
+                (Handler { msg_tx: msg_tx }, thrd)
         }
 
         pub fn show_recenabled(&self, enabled: bool) {

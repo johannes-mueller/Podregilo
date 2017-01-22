@@ -59,7 +59,7 @@ fn main() {
 
         event_manager.dispatcher().register_jingle_observer(&jp);
         event_manager.dispatcher().register_ui_observer(&jp);
-        let mut arduino = arduino::Handler::new("/dev/ttyUSB0", event_manager.event_queue());
+        let (mut arduino, arduino_thread) = arduino::Handler::new("/dev/ttyUSB0", event_manager.event_queue());
         let cli = cli::Interface::new(event_manager.event_queue());
 
         arduino.show_recenabled(true);
