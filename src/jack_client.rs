@@ -280,7 +280,7 @@ impl Proxy {
 }
 
 pub fn jack_proxy(clips_handle: Arc<RwLock<Vec<WavData>>>) -> (Proxy, thread::JoinHandle<()>) {
-        let (cmd_tx, cmd_rx): (Sender<ClientCmd>, Receiver<ClientCmd>) = mpsc::channel();
+        let (cmd_tx, cmd_rx) = mpsc::channel::<ClientCmd>();
         let client_state = Arc::new(RwLock::new(ClientState::Idle));
         let cs = client_state.clone();
         let thread_handle = thread::spawn( move | | {
@@ -304,8 +304,8 @@ fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,
         let out_port_l = client.register_port("sonbreto L", jack::AudioOutSpec::default()).unwrap();
         let out_port_r = client.register_port("sonbreto R", jack::AudioOutSpec::default()).unwrap();
 
-        let (state_tx, state_rx): (Sender<ClientState>, Receiver<ClientState>) = mpsc::channel();
-        let (jack_cmd_tx, jack_cmd_rx): (Sender<ClientCmd>, Receiver<ClientCmd>) = mpsc::channel();
+        let (state_tx, state_rx) = mpsc::channel::<ClientState>();
+        let (jack_cmd_tx, jack_cmd_rx) = mpsc::channel::<ClientCmd>();
 
         let jh = Handler {
                 clips_handle: clips_handle,

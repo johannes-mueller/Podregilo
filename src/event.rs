@@ -67,7 +67,7 @@ impl<'a> Dispatcher<'a> {
 
 impl<'a> Manager<'a> {
         pub fn new() -> Manager<'a> {
-                let (event_tx, event_rx): (Sender<EventMsg>, Receiver<EventMsg>) = mpsc::channel();
+                let (event_tx, event_rx) = mpsc::channel::<EventMsg>();
                 Manager {
                         dispatcher: Dispatcher::new(),
                         event_rx: event_rx,

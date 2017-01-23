@@ -35,7 +35,7 @@ impl Handler {
                         Err(e) => panic!("Could not open serial port: {}", e),
                         Ok(p) => p
                 };
-                let (msg_tx, msg_rx): (Sender<Message>, Receiver<Message>) = mpsc::channel();
+                let (msg_tx, msg_rx)= mpsc::channel::<Message>();
                 let mut conn = Connection::new(port, event_queue, msg_rx);
 
                 let thrd = thread:: spawn( move || { conn.event_loop(); } );
