@@ -22,7 +22,6 @@ struct ManagerInternal {
 }
 
 pub struct Manager<'a> {
-        event_tx_mutex: Arc<Mutex<Sender<EventMsg>>>,
         event_rx: Receiver<EventMsg>,
         dispatcher: Dispatcher<'a>,
 }
@@ -66,17 +65,10 @@ impl<'a> Dispatcher<'a> {
 }
 
 impl<'a> Manager<'a> {
-        pub fn new() -> Manager<'a> {
-                let (event_tx, event_rx) = mpsc::channel::<EventMsg>();
+        pub fn new(ev_rx: Receiver<EventMsg>) -> Manager<'a> {
                 Manager {
                         dispatcher: Dispatcher::new(),
-                        event_rx: event_rx,
-                        event_tx_mutex: Arc::new(Mutex::new(event_tx))
-                }
-        }
-        pub fn event_queue(&self) -> Queue {
-                Queue {
-                        event_tx_mutex: self.event_tx_mutex.clone()
+                        event_rx: ev_rx
                 }
         }
         pub fn process_next(&self) -> bool {
@@ -95,11 +87,17 @@ impl<'a> Manager<'a> {
         }
 }
 
+#[derive(Clone)]
 pub struct Queue {
         event_tx_mutex: Arc<Mutex<Sender<EventMsg>>>
 }
 
 impl Queue {
+        pub fn new(ev_tx: Sender<EventMsg>) -> Queue {
+                Queue {
+                        event_tx_mutex: Arc::new(Mutex::new(ev_tx))
+                }
+        }
         pub fn pass_event(&self, ev: Box<Event+Send>) {
                 let event_tx = self.event_tx_mutex.lock().unwrap();
                 event_tx.send(ev);
