@@ -3,12 +3,14 @@ extern crate serial;
 
 use std::io::{Read, Write};
 use std::thread;
-use std::sync::mpsc::{Sender, Receiver};
+use std::sync::mpsc::{Sender, SyncSender, Receiver};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 
 use event;
 use event::EventMsg;
+
+use jack_client;
 
 const SETTINGS: serial::PortSettings = serial::PortSettings {
     baud_rate:    serial::Baud9600,
@@ -25,7 +27,8 @@ struct Message {
 }
 
 pub struct Handler {
-        msg_tx: Sender<Message>,
+        msg_tx: SyncSender<Message>,
+        level_mutex: Arc<Mutex<jack_client::Levels>>
 }
 
 impl Handler {
@@ -35,12 +38,14 @@ impl Handler {
                         Err(e) => panic!("Could not open serial port: {}", e),
                         Ok(p) => p
                 };
-                let (msg_tx, msg_rx)= mpsc::channel::<Message>();
-                let mut conn = Connection::new(port, event_queue, msg_rx);
+                let (msg_tx, msg_rx)= mpsc::sync_channel::<Message>(0);
+                let level_mutex = Arc::new(Mutex::new([0.0; 4]));
+
+                let mut conn = Connection::new(port, event_queue, msg_rx, level_mutex.clone());
 
                 let thrd = thread:: spawn( move || { conn.event_loop(); } );
 
-                (Handler { msg_tx: msg_tx }, thrd)
+                (Handler { msg_tx: msg_tx, level_mutex: level_mutex }, thrd)
         }
 
         pub fn show_recenabled(&self, enabled: bool) {
@@ -49,42 +54,68 @@ impl Handler {
         }
 }
 
+impl event::Observer<jack_client::Levels> for Handler {
+        fn signal(&self, sig: jack_client::Levels) {
+                let mut levels = self.level_mutex.lock().expect("Could not get access to level mutex.");
+                for (l, s) in levels.iter_mut().zip(&sig) {
+                        *l = l.max(*s);
+                }
+        }
+}
+
 struct Connection {
         port: serial::posix::TTYPort,
         event_queue: event::Queue,
         msg_rx: Receiver<Message>,
+        level_mutex: Arc<Mutex<jack_client::Levels>>,
         old_button_state: u16
 }
 
 impl Connection {
         fn new(port: serial::posix::TTYPort,
-               evt_queue: event::Queue, msg_rx: Receiver<Message>) -> Connection {
+               evt_queue: event::Queue,
+               msg_rx: Receiver<Message>,
+               level_mutex: Arc<Mutex<jack_client::Levels>>) -> Connection {
                 Connection {
                         port: port,
                         event_queue: evt_queue,
                         msg_rx: msg_rx,
+                        level_mutex: level_mutex,
                         old_button_state: 0
                 }
+        }
+
+        fn send_level_msg(&mut self) {
+                let mut msg = Message { head: 'l', data: vec![] };
+                {
+                        let mut levels = self.level_mutex.lock().expect("Could not lock level mutex.");
+                        for mut l in &*levels {
+                                msg.data.push((l.min(1.0) * 255.0) as u8);
+                        }
+                        *levels = [0.0; 4];
+                }
+                self.send_arduino_msg(msg);
+        }
+
+        fn send_arduino_msg(&mut self, msg: Message) {
+                let mut d = vec![msg.head as u8];
+                for b in msg.data {
+                        d.push(b);
+                }
+                self.port.write(&d);
         }
 
         fn event_loop(&mut self) {
                 println!("Connection event loop started");
 
-
                 let mut buf: [u8; 1] = [0];
                 loop {
                         match self.msg_rx.try_recv() {
                                 Err(_) => {},
-                                Ok(msg) => {
-                                        println!("received {} {}", msg.head, msg.data[0]);
-                                        let mut d = vec![msg.head as u8];
-                                        for b in msg.data {
-                                                d.push(b);
-                                        }
-                                        println!("received {} {}", d[0] as char, d[1]);
-                                        self.port.write(&d);
-                                }
+                                Ok(msg) => self.send_arduino_msg(msg)
                         };
+
+                        self.send_level_msg();
 
                         match self.port.read_exact(&mut buf) {
                                 Err(_) => continue,

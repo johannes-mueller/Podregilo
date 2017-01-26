@@ -59,9 +59,21 @@ struct Handler {
         buffer_size: usize,
         out_port_l: jack::Port<jack::AudioOutSpec>,
         out_port_r: jack::Port<jack::AudioOutSpec>,
+
+        in_ports: Vec<jack::Port<jack::AudioInSpec>>,
+
+        event_queue: event::Queue,
 }
 
 impl Handler {
+        fn process_levels(&self, process_scope: &jack::ProcessScope) {
+                let mut lev = Box::new(LevelEvent { levels: [0.0; 4] });
+                for (mut in_port, max) in self.in_ports.iter().zip(lev.levels.iter_mut()) {
+                        let in_p = jack::AudioInPort::new(&in_port, process_scope);
+                        *max = in_p.iter().fold(0.0, |m, &x| m.max(x));
+                }
+                self.event_queue.pass_event(lev);
+        }
         fn do_process(&mut self, process_scope: &jack::ProcessScope) -> jack::JackControl {
                 let mut clip_pos = match self.client_state {
                         ClientState::Idle | ClientState::Paused(_)
@@ -137,6 +149,8 @@ impl Handler {
 
 impl jack::JackHandler for Handler {
         fn process(&mut self, process_scope: &jack::ProcessScope) -> jack::JackControl {
+                self.process_levels(process_scope);
+
                 match self.cmd_rx.try_recv() {
                         Err(_) => {},
                         Ok(ClientCmd::Play(cn)) => {
@@ -268,6 +282,21 @@ pub struct Proxy {
 }
 
 impl Proxy {
+        pub fn new(clips_handle: Arc<RwLock<Vec<WavData>>>,
+                   event_queue: event::Queue) -> (Proxy, thread::JoinHandle<()>) {
+                let (cmd_tx, cmd_rx) = mpsc::channel::<ClientCmd>();
+                let client_state = Arc::new(RwLock::new(ClientState::Idle));
+                let cs = client_state.clone();
+                let thread_handle = thread::spawn( move | | {
+                        register_jack(clips_handle, cmd_rx, cs, event_queue);
+                });
+                let pr = Proxy {
+                        cmd_tx_mutex: Arc::new(Mutex::new(cmd_tx)),
+                        client_state: client_state,
+                };
+                (pr, thread_handle)
+        }
+
         pub fn pass_cmd(&self, cmd: ClientCmd) {
                 let cmd_tx = self.cmd_tx_mutex.lock().expect("Could not get command mutex");
                 cmd_tx.send(cmd);
@@ -279,23 +308,11 @@ impl Proxy {
         }
 }
 
-pub fn jack_proxy(clips_handle: Arc<RwLock<Vec<WavData>>>) -> (Proxy, thread::JoinHandle<()>) {
-        let (cmd_tx, cmd_rx) = mpsc::channel::<ClientCmd>();
-        let client_state = Arc::new(RwLock::new(ClientState::Idle));
-        let cs = client_state.clone();
-        let thread_handle = thread::spawn( move | | {
-                register_jack(clips_handle, cmd_rx, cs);
-        });
-        let pr = Proxy {
-                cmd_tx_mutex: Arc::new(Mutex::new(cmd_tx)),
-                client_state: client_state,
-        };
-        (pr, thread_handle)
-}
 
 fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,
                  cmd_rx: Receiver<ClientCmd>,
-                 client_state: Arc<RwLock<ClientState>>) {
+                 client_state: Arc<RwLock<ClientState>>,
+                 event_queue: event::Queue) {
         let (mut client, _status) = match jack::Client::open("sonbreto", jack::client_options::NO_START_SERVER) {
                 Err(_) => panic!("Could not connect to jack."),
                 Ok((s,c)) => (s,c)
@@ -303,6 +320,12 @@ fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,
 
         let out_port_l = client.register_port("sonbreto L", jack::AudioOutSpec::default()).unwrap();
         let out_port_r = client.register_port("sonbreto R", jack::AudioOutSpec::default()).unwrap();
+
+        let mut in_ports = vec![];
+        for i in 0..4 {
+                let s: String = format!("PR vocxo {}", i);
+                in_ports.push(client.register_port(&s[..], jack::AudioInSpec::default()).unwrap());
+        }
 
         let (state_tx, state_rx) = mpsc::channel::<ClientState>();
         let (jack_cmd_tx, jack_cmd_rx) = mpsc::channel::<ClientCmd>();
@@ -315,7 +338,10 @@ fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,
                 client_state: ClientState::Idle,
                 buffer_size: client.buffer_size() as usize,
                 out_port_l: out_port_l,
-                out_port_r: out_port_r
+                out_port_r: out_port_r,
+                in_ports: in_ports,
+
+                event_queue: event_queue
         };
 
         let active_client = client.activate(jh).unwrap();
@@ -332,4 +358,18 @@ fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,
         manager.event_loop(&active_client);
         println!("Quitting");
         let _ = active_client.deactivate();
+}
+
+
+pub type Levels = [f32; 4];
+
+struct LevelEvent {
+        levels: Levels
+}
+
+impl event::Event for LevelEvent {
+        fn process(&self, dispatcher: &event::Dispatcher) -> bool {
+                dispatcher.level_change(self.levels);
+                true
+        }
 }

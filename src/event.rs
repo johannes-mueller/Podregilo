@@ -32,14 +32,16 @@ pub trait Observer<T> {
 
 pub struct Dispatcher<'a> {
         jingle_observers: Vec<Box<&'a Observer<JingleButtonEvent>>>,
-        ui_observers: Vec<Box<&'a Observer<UIEvent>>>
+        ui_observers: Vec<Box<&'a Observer<UIEvent>>>,
+        level_observers: Vec<Box<&'a Observer<jack_client::Levels>>>
 }
 
 impl<'a> Dispatcher<'a> {
         fn new() -> Dispatcher<'a> {
                 Dispatcher {
                         jingle_observers: vec![],
-                        ui_observers: vec![]
+                        ui_observers: vec![],
+                        level_observers: vec![]
                 }
         }
 
@@ -61,6 +63,15 @@ impl<'a> Dispatcher<'a> {
 
         pub fn register_ui_observer(&mut self, obs: &'a Observer<UIEvent>) {
                 self.ui_observers.push(Box::new(obs));
+        }
+
+        pub fn level_change(&self, levels: jack_client::Levels) {
+                for obs in &self.level_observers {
+                        obs.signal(levels);
+                }
+        }
+        pub fn register_level_observer(&mut self, obs: &'a Observer<jack_client::Levels>) {
+                self.level_observers.push(Box::new(obs));
         }
 }
 
