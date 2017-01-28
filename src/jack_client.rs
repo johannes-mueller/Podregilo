@@ -6,6 +6,7 @@ use std::sync::mpsc;
 use std::sync::{Arc, RwLock, Mutex};
 
 use std::thread;
+use std::time;
 
 use self::jack::JackClient;
 
@@ -301,10 +302,16 @@ impl Proxy {
                 let thread_handle = thread::spawn( move | | {
                         register_jack(clips_handle, cmd_rx, cattrs, event_queue);
                 });
+
                 let pr = Proxy {
                         cmd_tx_mutex: Arc::new(Mutex::new(cmd_tx)),
                         client_attrs: client_attrs,
                 };
+
+                while pr.get_sample_rate() == 0 {
+                        thread::sleep(time::Duration::from_millis(100));
+                }
+
                 (pr, thread_handle)
         }
 
