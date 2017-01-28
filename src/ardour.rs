@@ -26,8 +26,10 @@ impl Handler {
                 let _ = thread::spawn( move | | {
                         loop {
                                 thread::sleep(time::Duration::from_millis(100));
-                                let msg = osc_message("/transport_frame");
-                                if osc_tx_cl.send(msg).is_err() {
+                                if osc_tx_cl.send(osc_message("/transport_frame")).is_err() {
+                                        break;
+                                }
+                                if osc_tx_cl.send(osc_message("/record_enabled")).is_err() {
                                         break;
                                 }
                         }
@@ -67,25 +69,32 @@ fn handle_reply(ev_queue: &event::Queue, osc_reply: &OscPacket) {
         }
 }
 
+macro_rules! extract_osc {
+        ($msg:ident, $variant:ident) => {{
+                let args = match $msg.args {
+                        None => {
+                                println!("expected content with Osc Message");
+                                return;
+                        },
+                        Some(ref v) => v
+                };
+                let val = match args[0] {
+                        OscType::$variant(val) => val,
+                        _ => {
+                                println!("Wrong type received in Osc message");
+                                return;
+                        }
+                };
+                val
+        }}
+}
+
 fn handle_osc_message(ev_queue: &event::Queue, msg: &OscMessage) {
         match msg.addr.as_ref() {
-                "/transport_frame" => {
-                        let args = match msg.args {
-                                None => {
-                                        println!("expected content with /transport_frame");
-                                        return;
-                                },
-                                Some(ref v) => v
-                        };
-                        let t = match args[0] {
-                                OscType::Long(t) => t,
-                                _ => {
-                                        println!("Wrong type received with /transport_frame");
-                                        return;
-                                }
-                        };
-                        ev_queue.pass_event(event::Event::ArdourTime(t));
-                }
+                "/record_enabled" =>
+                        ev_queue.pass_event(event::Event::RecordEnabled(extract_osc!(msg, Int) != 0)),
+                "/transport_frame" =>
+                        ev_queue.pass_event(event::Event::ArdourTime(extract_osc!(msg, Long))),
                 _ => println!("Received OSC message {}", msg.addr)
         }
 }
@@ -120,6 +129,7 @@ fn ardour_osc_loop(osc_rx: Receiver<OscMessage>, reply_tx: Sender<OscPacket>) {
                         continue
                 }
 
+//                println!("Osc reply {}", String::from_utf8_lossy(&buf));
                 let reply_msg = match rosc::decoder::decode(&buf) {
                         Ok(msg) => msg,
                         Err(_) => {

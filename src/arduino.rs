@@ -28,7 +28,9 @@ struct Message {
 pub struct Handler {
         msg_tx: SyncSender<Message>,
         level_mutex: Arc<Mutex<jack_client::Levels>>,
-        jack_sample_rate: usize
+        jack_sample_rate: usize,
+
+        record_enabled: Arc<Mutex<bool>>
 }
 
 impl Handler {
@@ -49,13 +51,19 @@ impl Handler {
 
                 (Handler { msg_tx: msg_tx,
                            level_mutex: level_mutex,
-                           jack_sample_rate: jack_sample_rate
+                           jack_sample_rate: jack_sample_rate,
+                           record_enabled: Arc::new(Mutex::new(false))
                 }, thrd)
         }
 
         pub fn show_recenabled(&self, enabled: bool) {
+                let mut old = self.record_enabled.lock().expect("Could not get the record enabled lock");
+                if enabled == *old {
+                        return;
+                }
                 let msg = Message { head: 'r', data: vec![enabled as u8] };
                 self.msg_tx.send(msg);
+                *old = enabled;
         }
 
         fn level(&self, sig: jack_client::Levels) {
@@ -82,6 +90,7 @@ impl event::Handler for Handler {
                 match *ev {
                         event::Event::Level(l) => self.level(l),
                         event::Event::ArdourTime(t) => self.transport_time(t),
+                        event::Event::RecordEnabled(re) => self.show_recenabled(re),
                         _ => {}
                 };
         }
