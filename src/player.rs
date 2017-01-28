@@ -39,23 +39,22 @@ impl<'a> JinglePlayer<'a> {
                 };
                 self.jack_proxy.pass_cmd(cmd)
         }
-}
 
-impl<'a> event::Observer<event::JingleButtonEvent> for JinglePlayer<'a> {
-        fn signal(&self, ev: event::JingleButtonEvent) {
+        fn jingle_button_event(&self, ev: event::JingleButtonEvent) {
                 match ev.state {
                         event::ButtonState::Pressed => self.button_press(ev.number),
                         event::ButtonState::LongPressed => self.button_long_pressed(ev.number),
                         _ => {}
-                        }
-                }
+                };
+        }
 }
 
-impl<'a> event::Observer<event::UIEvent> for JinglePlayer<'a> {
-        fn signal(&self, ev: event::UIEvent) {
-                match ev {
-                        event::UIEvent::Quit => self.jack_proxy.pass_cmd(jack_client::ClientCmd::Quit),
-
-                }
+impl<'a> event::Handler for JinglePlayer<'a> {
+        fn event(&self, ev: &event::Event) {
+                match *ev {
+                        event::Event::Quit => self.jack_proxy.pass_cmd(jack_client::ClientCmd::Quit),
+                        event::Event::JingleButton(e) => self.jingle_button_event(e),
+                        _ => {}
+                };
         }
 }

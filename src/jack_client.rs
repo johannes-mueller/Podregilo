@@ -13,6 +13,8 @@ use event;
 
 pub type WavData = Vec<[f32; 2]>;
 
+pub type Levels = [f32; 4];
+
 pub type ClipHandle = Arc<RwLock<Option<WavData>>>;
 
 
@@ -67,12 +69,12 @@ struct Handler {
 
 impl Handler {
         fn process_levels(&self, process_scope: &jack::ProcessScope) {
-                let mut lev = Box::new(LevelEvent { levels: [0.0; 4] });
-                for (mut in_port, max) in self.in_ports.iter().zip(lev.levels.iter_mut()) {
+                let mut lev: Levels = [0.0; 4];
+                for (mut in_port, max) in self.in_ports.iter().zip(lev.iter_mut()) {
                         let in_p = jack::AudioInPort::new(&in_port, process_scope);
                         *max = in_p.iter().fold(0.0, |m, &x| m.max(x));
                 }
-                self.event_queue.pass_event(lev);
+                self.event_queue.pass_event(event::Event::Level(lev));
         }
         fn do_process(&mut self, process_scope: &jack::ProcessScope) -> jack::JackControl {
                 let mut clip_pos = match self.client_state {
@@ -358,18 +360,4 @@ fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,
         manager.event_loop(&active_client);
         println!("Quitting");
         let _ = active_client.deactivate();
-}
-
-
-pub type Levels = [f32; 4];
-
-struct LevelEvent {
-        levels: Levels
-}
-
-impl event::Event for LevelEvent {
-        fn process(&self, dispatcher: &event::Dispatcher) -> bool {
-                dispatcher.level_change(self.levels);
-                true
-        }
 }

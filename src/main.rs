@@ -17,7 +17,6 @@ mod player;
 mod cli;
 mod jack_client;
 
-use event::EventMsg;
 
 fn fill_clips_handle(infiles: Vec<String>, clips_handle: Arc<RwLock<Vec<jack_client::WavData>>>) {
         let mut clips = clips_handle.write().unwrap();
@@ -52,23 +51,25 @@ fn main() {
         parse_args(&mut infiles);
         fill_clips_handle(infiles, clips_handle.clone());
 
-        let (event_tx, event_rx) = mpsc::channel::<event::EventMsg>();
+        let (event_tx, event_rx) = mpsc::channel::<event::Event>();
         let ev_queue = event::Queue::new(event_tx);
 
         let (jack_proxy,  jack_thread) = jack_client::Proxy::new(clips_handle.clone(), ev_queue.clone());
         let jp = player::JinglePlayer::new(&jack_proxy);
         let (arduino, arduino_thread) = arduino::Handler::new("/dev/ttyUSB0", ev_queue.clone());
         let (ardour, ardour_thread) = ardour::Handler::new(ev_queue.clone());
+        let cli = cli::Interface::new(ev_queue.clone());
 
         let mut event_manager = event::Manager::new(event_rx);
 
-        event_manager.dispatcher().register_jingle_observer(&jp);
-        event_manager.dispatcher().register_ui_observer(&jp);
-        event_manager.dispatcher().register_level_observer(&arduino);
-        let _ = cli::Interface::new(ev_queue.clone());
+        event_manager.register_event_handler(&jp);
+        event_manager.register_event_handler(&arduino);
+        event_manager.register_event_handler(&cli);
 
         arduino.show_recenabled(true);
-        while event_manager.process_next() { }
+        while !cli.supposed_to_quit() {
+                event_manager.process_next();
+        }
 
         let _ = jack_thread.join();
 }

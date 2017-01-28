@@ -5,111 +5,66 @@ use std::sync::mpsc;
 
 use jack_client;
 
-use cli::QuitEvent;
-
-pub trait Event {
-        fn process(&self, dispatcher: &Dispatcher) -> bool;
-}
-
-pub type EventMsg = Box<Event+Send>;
-
-pub enum UIEvent {
-        Quit
+pub enum Event {
+        Quit,
+        JingleButton(JingleButtonEvent),
+//        Button(ButtonChange),
+        Level(jack_client::Levels),
+        Dummy
 }
 
 struct ManagerInternal {
-        event_tx: Sender<EventMsg>,
+        event_tx: Sender<Event>,
 }
 
 pub struct Manager<'a> {
-        event_rx: Receiver<EventMsg>,
-        dispatcher: Dispatcher<'a>,
+        event_rx: Receiver<Event>,
+        handlers: Vec<Box<&'a Handler>>
 }
 
-pub trait Observer<T> {
-        fn signal(&self, data: T);
-}
-
-pub struct Dispatcher<'a> {
-        jingle_observers: Vec<Box<&'a Observer<JingleButtonEvent>>>,
-        ui_observers: Vec<Box<&'a Observer<UIEvent>>>,
-        level_observers: Vec<Box<&'a Observer<jack_client::Levels>>>
-}
-
-impl<'a> Dispatcher<'a> {
-        fn new() -> Dispatcher<'a> {
-                Dispatcher {
-                        jingle_observers: vec![],
-                        ui_observers: vec![],
-                        level_observers: vec![]
-                }
-        }
-
-        fn jingle_button_event(&self, ev: JingleButtonEvent) {
-                for obs in &self.jingle_observers {
-                        obs.signal(ev);
-                }
-        }
-
-        pub fn register_jingle_observer(&mut self, obs: &'a Observer<JingleButtonEvent>) {
-                self.jingle_observers.push(Box::new(obs));
-        }
-
-        pub fn application_quit(&self) {
-                for obs in &self.ui_observers {
-                        obs.signal(UIEvent::Quit);
-                }
-        }
-
-        pub fn register_ui_observer(&mut self, obs: &'a Observer<UIEvent>) {
-                self.ui_observers.push(Box::new(obs));
-        }
-
-        pub fn level_change(&self, levels: jack_client::Levels) {
-                for obs in &self.level_observers {
-                        obs.signal(levels);
-                }
-        }
-        pub fn register_level_observer(&mut self, obs: &'a Observer<jack_client::Levels>) {
-                self.level_observers.push(Box::new(obs));
-        }
+pub trait Handler {
+        fn event(&self, ev: &Event);
 }
 
 impl<'a> Manager<'a> {
-        pub fn new(ev_rx: Receiver<EventMsg>) -> Manager<'a> {
+        pub fn new(ev_rx: Receiver<Event>) -> Manager<'a> {
                 Manager {
-                        dispatcher: Dispatcher::new(),
+                        handlers: vec![],
                         event_rx: ev_rx
                 }
         }
-        pub fn process_next(&self) -> bool {
-                let evt = match self.event_rx.recv() {
+        pub fn process_next(&self) {
+                let ev = match self.event_rx.recv() {
                         Err(e) => {
                                 println!("No event received: {}", e);
-                                return true
+                                return
                         },
                         Ok(ev) => ev
                 };
-
-                evt.process(&self.dispatcher)
+                self.signal_event(&ev);
         }
-        pub fn dispatcher(&mut self) -> &mut Dispatcher<'a> {
-                &mut self.dispatcher
+        pub fn register_event_handler(&mut self, handler: &'a Handler) {
+                self.handlers.push(Box::new(handler));
+        }
+        pub fn signal_event(&self, ev: &'a Event) {
+                for h in &self.handlers {
+                        h.event(ev);
+                }
         }
 }
 
 #[derive(Clone)]
 pub struct Queue {
-        event_tx_mutex: Arc<Mutex<Sender<EventMsg>>>
+        event_tx_mutex: Arc<Mutex<Sender<Event>>>
 }
 
 impl Queue {
-        pub fn new(ev_tx: Sender<EventMsg>) -> Queue {
+        pub fn new(ev_tx: Sender<Event>) -> Queue {
                 Queue {
                         event_tx_mutex: Arc::new(Mutex::new(ev_tx))
                 }
         }
-        pub fn pass_event(&self, ev: Box<Event+Send>) {
+        pub fn pass_event(&self, ev: Event) {
                 let event_tx = self.event_tx_mutex.lock().unwrap();
                 event_tx.send(ev);
         }
@@ -135,6 +90,7 @@ pub enum Button {
         Mute(usize)
 }
 
+
 #[derive(Copy, Clone)]
 pub struct JingleButtonEvent {
         pub number: usize,
@@ -148,40 +104,11 @@ const BUTTONS: [Button; 16] = [
         Button::Rec, Button::Play, Button::AddMark, Button::Dummy
 ];
 
-pub struct ButtonEvent {
-        changed_button: ButtonChange,
-}
+pub fn button_event(number: usize, state: ButtonState) -> Event {
+        let button = BUTTONS[number];
 
-impl ButtonEvent {
-        pub fn new(n: ButtonNumber, s: ButtonState) -> ButtonEvent {
-                ButtonEvent { changed_button: (BUTTONS[n], s) }
-        }
-}
-
-impl Event for ButtonEvent {
-        fn process(&self, dispatcher: &Dispatcher) -> bool{
-                match self.changed_button {
-                        (Button::Jingle(number), ButtonState::Pressed) => {
-                                let ev = JingleButtonEvent { number: number, state: ButtonState::Pressed };
-                                dispatcher.jingle_button_event(ev);
-                        },
-                        (Button::Jingle(number), ButtonState::LongPressed) => {
-                                let ev = JingleButtonEvent { number: number, state: ButtonState::LongPressed };
-                                dispatcher.jingle_button_event(ev);
-                        },
-                        (Button::Jingle(number), ButtonState::Released)
-                                => println!("Released Jingle {}", number),
-                        (Button::Rec, ButtonState::Pressed)
-                                => println!("Toggled Recenable"),
-                        (Button::Mute(channel), ButtonState::Pressed)
-                                => println!("Supposed to mute channel {}", channel),
-                        (Button::Mute(channel), ButtonState::Released)
-                                => println!("Supposed to unmute channel {}", channel),
-//                        (Button::AddMark, ButtonState::Pressed)
-//                                => dispatcher.add_mark_event(),
-                        _ => println!("don't know"),
-                }
-
-                true
+        match button {
+                Button::Jingle(n) => Event::JingleButton(JingleButtonEvent { number: n, state: state }),
+                 _ => Event::Dummy
         }
 }

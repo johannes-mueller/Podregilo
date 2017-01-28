@@ -8,7 +8,6 @@ use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
 
 use event;
-use event::EventMsg;
 
 use jack_client;
 
@@ -54,8 +53,12 @@ impl Handler {
         }
 }
 
-impl event::Observer<jack_client::Levels> for Handler {
-        fn signal(&self, sig: jack_client::Levels) {
+impl event::Handler for Handler {
+        fn event(&self, ev: &event::Event) {
+                let sig = match *ev {
+                        event::Event::Level(l) => l,
+                        _ => return
+                };
                 let mut levels = self.level_mutex.lock().expect("Could not get access to level mutex.");
                 for (l, s) in levels.iter_mut().zip(&sig) {
                         *l = l.max(*s);
@@ -155,8 +158,7 @@ impl Connection {
                                         0 => event::ButtonState::Released,
                                         _ => event::ButtonState::Pressed
                                 };
-                                let ev = Box::new(event::ButtonEvent::new(bit, bs));
-                                self.event_queue.pass_event(ev);
+                                self.event_queue.pass_event(event::button_event(bit, bs));
                         }
                 }
         }
@@ -167,7 +169,7 @@ impl Connection {
                 for bit in 0..16 {
                         let mask: u16 = (1 as u16) << bit;
                         if long_press_state & mask != 0 {
-                                let ev = Box::new(event::ButtonEvent::new(bit, event::ButtonState::LongPressed));
+                                let ev = event::button_event(bit, event::ButtonState::LongPressed);
                                 self.event_queue.pass_event(ev);
                         }
                 }
