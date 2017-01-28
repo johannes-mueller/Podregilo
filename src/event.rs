@@ -177,6 +177,8 @@ impl Event for ButtonEvent {
                                 => println!("Supposed to mute channel {}", channel),
                         (Button::Mute(channel), ButtonState::Released)
                                 => println!("Supposed to unmute channel {}", channel),
+//                        (Button::AddMark, ButtonState::Pressed)
+//                                => dispatcher.add_mark_event(),
                         _ => println!("don't know"),
                 }
 

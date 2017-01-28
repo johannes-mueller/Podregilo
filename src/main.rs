@@ -11,6 +11,7 @@ use std::sync::mpsc;
 use std::sync::{Arc, Mutex, RwLock};
 
 mod arduino;
+mod ardour;
 mod event;
 mod player;
 mod cli;
@@ -57,6 +58,7 @@ fn main() {
         let (jack_proxy,  jack_thread) = jack_client::Proxy::new(clips_handle.clone(), ev_queue.clone());
         let jp = player::JinglePlayer::new(&jack_proxy);
         let (arduino, arduino_thread) = arduino::Handler::new("/dev/ttyUSB0", ev_queue.clone());
+        let (ardour, ardour_thread) = ardour::Handler::new(ev_queue.clone());
 
         let mut event_manager = event::Manager::new(event_rx);
 
