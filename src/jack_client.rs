@@ -212,7 +212,7 @@ struct Manager {
         jack_cmd_tx: Sender<ClientCmd>,
         state_rx: Receiver<ClientState>,
         state: ClientState,
-        official_state: Arc<RwLock<ClientState>>
+        attrs: Arc<RwLock<ClientAttrs>>
 }
 
 impl Manager {
@@ -257,9 +257,9 @@ impl Manager {
                                 continue;
                         }
                         self.state = new_state;
-                        let mut os = self.official_state.write()
+                        let mut attrs = self.attrs.write()
                                 .expect("Could not get write access to ClientState");
-                        *os = new_state;
+                        attrs.state = new_state;
 
                         match self.state {
                                 ClientState::Idle => println!("Idleing"),
@@ -278,23 +278,32 @@ impl Manager {
         }
 }
 
+struct ClientAttrs {
+        state: ClientState,
+        sample_rate: usize
+}
+
 pub struct Proxy {
         cmd_tx_mutex: Arc<Mutex<Sender<ClientCmd>>>,
-        client_state: Arc<RwLock<ClientState>>,
+        client_attrs: Arc<RwLock<ClientAttrs>>
 }
 
 impl Proxy {
         pub fn new(clips_handle: Arc<RwLock<Vec<WavData>>>,
                    event_queue: event::Queue) -> (Proxy, thread::JoinHandle<()>) {
                 let (cmd_tx, cmd_rx) = mpsc::channel::<ClientCmd>();
-                let client_state = Arc::new(RwLock::new(ClientState::Idle));
-                let cs = client_state.clone();
+                let ca = ClientAttrs {
+                        state: ClientState::Idle,
+                        sample_rate: 0
+                };
+                let client_attrs = Arc::new(RwLock::new(ca));
+                let cattrs = client_attrs.clone();
                 let thread_handle = thread::spawn( move | | {
-                        register_jack(clips_handle, cmd_rx, cs, event_queue);
+                        register_jack(clips_handle, cmd_rx, cattrs, event_queue);
                 });
                 let pr = Proxy {
                         cmd_tx_mutex: Arc::new(Mutex::new(cmd_tx)),
-                        client_state: client_state,
+                        client_attrs: client_attrs,
                 };
                 (pr, thread_handle)
         }
@@ -305,20 +314,27 @@ impl Proxy {
         }
 
         pub fn get_jack_state(&self) -> ClientState {
-                let state = self.client_state.read().expect("Could not get read access to client_state.");
-                *state
+                let attrs = self.client_attrs.read().expect("Could not get read access to client_attrs.");
+                attrs.state
+        }
+
+        pub fn get_sample_rate(&self) -> usize {
+                let attrs = self.client_attrs.read().expect("Could not get read access to client_attrs.");
+                attrs.sample_rate
         }
 }
 
 
 fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,
                  cmd_rx: Receiver<ClientCmd>,
-                 client_state: Arc<RwLock<ClientState>>,
+                 client_attrs: Arc<RwLock<ClientAttrs>>,
                  event_queue: event::Queue) {
         let (mut client, _status) = match jack::Client::open("sonbreto", jack::client_options::NO_START_SERVER) {
                 Err(_) => panic!("Could not connect to jack."),
                 Ok((s,c)) => (s,c)
         };
+
+        client_attrs.write().expect("Could not pass samplerate").sample_rate = client.sample_rate();
 
         let out_port_l = client.register_port("sonbreto L", jack::AudioOutSpec::default()).unwrap();
         let out_port_r = client.register_port("sonbreto R", jack::AudioOutSpec::default()).unwrap();
@@ -354,7 +370,7 @@ fn register_jack(clips_handle: Arc<RwLock<Vec<WavData>>>,
                 state_rx: state_rx,
 
                 state: ClientState::Idle,
-                official_state: client_state
+                attrs: client_attrs
         };
 
         manager.event_loop(&active_client);
