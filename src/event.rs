@@ -10,6 +10,7 @@ pub enum Event {
         JingleButton(JingleButtonEvent),
 //        Button(ButtonChange),
         Level(jack_client::Levels),
+        ArdourTime(i64),
         Dummy
 }
 

@@ -56,7 +56,9 @@ fn main() {
 
         let (jack_proxy,  jack_thread) = jack_client::Proxy::new(clips_handle.clone(), ev_queue.clone());
         let jp = player::JinglePlayer::new(&jack_proxy);
-        let (arduino, arduino_thread) = arduino::Handler::new("/dev/ttyUSB0", ev_queue.clone());
+
+        let sr = jack_proxy.get_sample_rate();
+        let (arduino, arduino_thread) = arduino::Handler::new("/dev/ttyUSB0", ev_queue.clone(), sr);
         let (ardour, ardour_thread) = ardour::Handler::new(ev_queue.clone());
         let cli = cli::Interface::new(ev_queue.clone());
 

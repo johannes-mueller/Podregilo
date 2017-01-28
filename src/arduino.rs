@@ -27,11 +27,14 @@ struct Message {
 
 pub struct Handler {
         msg_tx: SyncSender<Message>,
-        level_mutex: Arc<Mutex<jack_client::Levels>>
+        level_mutex: Arc<Mutex<jack_client::Levels>>,
+        jack_sample_rate: usize
 }
 
 impl Handler {
-        pub fn new(port_path: &str, event_queue: event::Queue) -> (Handler, thread::JoinHandle<()>) {
+        pub fn new(port_path: &str,
+                   event_queue: event::Queue,
+                   jack_sample_rate: usize) -> (Handler, thread::JoinHandle<()>) {
                 println!("HAndler");
                 let mut port = match serial::open("/dev/ttyUSB0") {
                         Err(e) => panic!("Could not open serial port: {}", e),
@@ -44,25 +47,43 @@ impl Handler {
 
                 let thrd = thread:: spawn( move || { conn.event_loop(); } );
 
-                (Handler { msg_tx: msg_tx, level_mutex: level_mutex }, thrd)
+                (Handler { msg_tx: msg_tx,
+                           level_mutex: level_mutex,
+                           jack_sample_rate: jack_sample_rate
+                }, thrd)
         }
 
         pub fn show_recenabled(&self, enabled: bool) {
                 let msg = Message { head: 'r', data: vec![enabled as u8] };
                 self.msg_tx.send(msg);
         }
-}
 
-impl event::Handler for Handler {
-        fn event(&self, ev: &event::Event) {
-                let sig = match *ev {
-                        event::Event::Level(l) => l,
-                        _ => return
-                };
+        fn level(&self, sig: jack_client::Levels) {
                 let mut levels = self.level_mutex.lock().expect("Could not get access to level mutex.");
                 for (l, s) in levels.iter_mut().zip(&sig) {
                         *l = l.max(*s);
                 }
+        }
+
+        fn transport_time(&self, ttime: i64) {
+                let seconds = (ttime/(self.jack_sample_rate as i64)) as u16;
+                let b0 = (seconds & 0b11111111) as u8;
+                let b1 = ((seconds >> 8) & 0b11111111) as u8;
+                let msg = Message {
+                        head: 't',
+                        data: vec![b0, b1]
+                };
+                self.msg_tx.send(msg);
+        }
+}
+
+impl event::Handler for Handler {
+        fn event(&self, ev: &event::Event) {
+                match *ev {
+                        event::Event::Level(l) => self.level(l),
+                        event::Event::ArdourTime(t) => self.transport_time(t),
+                        _ => {}
+                };
         }
 }
 
