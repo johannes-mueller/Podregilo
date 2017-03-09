@@ -5,6 +5,12 @@ use std::sync::mpsc;
 
 use jack_client;
 
+pub enum ArdourCmd {
+        AddMark,
+        PrepareRecord,
+        ToggleTransport
+}
+
 pub enum Event {
         Quit,
         JingleButton(JingleButtonEvent),
@@ -12,6 +18,7 @@ pub enum Event {
         Level(jack_client::Levels),
         ArdourTime(i64),
         RecordEnabled(bool),
+        ArdourCmd(ArdourCmd),
         Dummy
 }
 
@@ -109,8 +116,15 @@ const BUTTONS: [Button; 16] = [
 pub fn button_event(number: usize, state: ButtonState) -> Event {
         let button = BUTTONS[number];
 
-        match button {
-                Button::Jingle(n) => Event::JingleButton(JingleButtonEvent { number: n, state: state }),
+        match (button, state) {
+                (Button::Jingle(n), _)
+                        => Event::JingleButton(JingleButtonEvent { number: n, state: state }),
+                (Button::AddMark, ButtonState::Pressed)
+                        => Event::ArdourCmd(ArdourCmd::AddMark),
+                (Button::Play, ButtonState::Pressed)
+                        => Event::ArdourCmd(ArdourCmd::ToggleTransport),
+                (Button::Rec, ButtonState::Pressed)
+                        => Event::ArdourCmd(ArdourCmd::PrepareRecord),
                  _ => Event::Dummy
         }
 }

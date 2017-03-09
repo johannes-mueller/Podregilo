@@ -67,6 +67,7 @@ fn main() {
         event_manager.register_event_handler(&jp);
         event_manager.register_event_handler(&arduino);
         event_manager.register_event_handler(&cli);
+        event_manager.register_event_handler(&ardour);
 
         arduino.show_recenabled(true);
         while !cli.supposed_to_quit() {

@@ -1,3 +1,4 @@
+
 extern crate rosc;
 
 use std::thread;
@@ -48,13 +49,30 @@ impl Handler {
                         }
                 });
 
-                osc_tx.send(osc_message("/add_mark"));
-
                 ( Handler { osc_tx: osc_tx }, jh )
         }
 
-        fn add_mark_msg(&self) {
-                self.osc_tx.send(OscMessage { addr: "/add_mark".to_string(), args: None });
+}
+
+impl event::Handler for Handler {
+        fn event(&self, ev: &event::Event) {
+                let cmd = match *ev {
+                        event::Event::ArdourCmd(ref c) => c,
+                        _ => return
+                };
+                let msg = match *cmd {
+                        event::ArdourCmd::AddMark =>
+                                OscMessage { addr: "/add_marker".to_string(), args: None },
+                        event::ArdourCmd::ToggleTransport =>
+                                OscMessage { addr: "/toggle_roll".to_string(), args: None },
+                        event::ArdourCmd::PrepareRecord =>
+                                OscMessage {
+                                        addr: "/access_action".to_string(),
+                                        args: Some(vec![OscType::String("Editor/script-action-2".to_string())])
+                                }
+                };
+                println!("sending {}", msg.addr);
+                self.osc_tx.send(msg);
         }
 }
 
