@@ -38,7 +38,7 @@ impl Handler {
                    event_queue: event::Queue,
                    jack_sample_rate: usize) -> (Handler, thread::JoinHandle<()>) {
                 println!("HAndler");
-                let mut port = match serial::open("/dev/ttyUSB0") {
+                let mut port = match serial::open(port_path) {
                         Err(e) => panic!("Could not open serial port: {}", e),
                         Ok(p) => p
                 };

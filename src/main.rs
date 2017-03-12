@@ -1,5 +1,5 @@
 extern crate argparse;
-use argparse::{ArgumentParser, List};
+use argparse::{ArgumentParser, List, Store};
 
 extern crate wavefile;
 use wavefile::WaveFile;
@@ -36,10 +36,11 @@ fn fill_clips_handle(infiles: Vec<String>, clips_handle: Arc<RwLock<Vec<jack_cli
         }
 }
 
-fn parse_args(infiles: &mut Vec<String>) {
+fn parse_args(infiles: &mut Vec<String>, port_path: &mut String) {
         let mut ap = ArgumentParser::new();
 
         ap.set_description("Test soundboard ...");
+        ap.refer(port_path).add_argument("USB port", Store, "USB port of arduino device").required();
         ap.refer(infiles).add_argument("input file", List, "WAV file to test").required();
         ap.parse_args_or_exit();
 }
@@ -48,7 +49,8 @@ fn parse_args(infiles: &mut Vec<String>) {
 fn main() {
         let clips_handle = Arc::new(RwLock::new(vec![]));
         let mut infiles: Vec<String> = vec![];
-        parse_args(&mut infiles);
+        let mut port_path = String::new();
+        parse_args(&mut infiles, &mut port_path);
         fill_clips_handle(infiles, clips_handle.clone());
 
         let (event_tx, event_rx) = mpsc::channel::<event::Event>();
@@ -58,7 +60,7 @@ fn main() {
         let jp = player::JinglePlayer::new(&jack_proxy);
 
         let sr = jack_proxy.get_sample_rate();
-        let (arduino, arduino_thread) = arduino::Handler::new("/dev/ttyUSB0", ev_queue.clone(), sr);
+        let (arduino, arduino_thread) = arduino::Handler::new(&*port_path, ev_queue.clone(), sr);
         let (ardour, ardour_thread) = ardour::Handler::new(ev_queue.clone());
         let cli = cli::Interface::new(ev_queue.clone());
 
