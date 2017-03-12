@@ -26,11 +26,14 @@ impl Handler {
                 let osc_tx_cl = osc_tx.clone();
                 let _ = thread::spawn( move | | {
                         loop {
-                                thread::sleep(time::Duration::from_millis(100));
+                                thread::sleep(time::Duration::from_millis(200));
                                 if osc_tx_cl.send(osc_message("/transport_frame")).is_err() {
                                         break;
                                 }
                                 if osc_tx_cl.send(osc_message("/record_enabled")).is_err() {
+                                        break;
+                                }
+                                if osc_tx_cl.send(osc_message("/transport_speed")).is_err() {
                                         break;
                                 }
                         }
@@ -108,7 +111,7 @@ macro_rules! extract_osc {
                 let val = match args[0] {
                         OscType::$variant(val) => val,
                         _ => {
-                                println!("Wrong type received in Osc message");
+                                println!("Wrong type received in Osc message.");
                                 return;
                         }
                 };
@@ -122,6 +125,8 @@ fn handle_osc_message(ev_queue: &event::Queue, msg: &OscMessage) {
                         ev_queue.pass_event(event::Event::RecordEnabled(extract_osc!(msg, Int) != 0)),
                 "/transport_frame" =>
                         ev_queue.pass_event(event::Event::ArdourTime(extract_osc!(msg, Long))),
+                "/transport_speed" =>
+                        ev_queue.pass_event(event::Event::ArdourSpeed(extract_osc!(msg, Double) as f32)),
                 _ => println!("Received OSC message {}", msg.addr)
         }
 }

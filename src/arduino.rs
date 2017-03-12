@@ -1,11 +1,14 @@
 
 extern crate serial;
+extern crate byteorder;
 
 use std::io::{Read, Write};
 use std::thread;
 use std::sync::mpsc::{Sender, SyncSender, Receiver};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
+
+use self::byteorder::{WriteBytesExt, LittleEndian};
 
 use event;
 
@@ -83,6 +86,15 @@ impl Handler {
                 };
                 self.msg_tx.send(msg);
         }
+
+        fn transport_speed(&self, tspeed: f32) {
+                let mut msg = Message {
+                        head: 's',
+                        data: vec![]
+                };
+                msg.data.write_f32::<LittleEndian>(tspeed).unwrap();
+                self.msg_tx.send(msg);
+        }
 }
 
 impl event::Handler for Handler {
@@ -90,6 +102,7 @@ impl event::Handler for Handler {
                 match *ev {
                         event::Event::Level(l) => self.level(l),
                         event::Event::ArdourTime(t) => self.transport_time(t),
+                        event::Event::ArdourSpeed(s) => self.transport_speed(s),
                         event::Event::RecordEnabled(re) => self.show_recenabled(re),
                         _ => {}
                 };

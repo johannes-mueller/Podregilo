@@ -18,6 +18,8 @@ pub enum Event {
 //        Button(ButtonChange),
         Level(jack_client::Levels),
         ArdourTime(i64),
+        ArdourSpeed(f32
+        ),
         RecordEnabled(bool),
         ArdourCmd(ArdourCmd),
         Dummy
