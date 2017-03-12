@@ -63,6 +63,15 @@ impl event::Handler for Handler {
                 let msg = match *cmd {
                         event::ArdourCmd::AddMark =>
                                 OscMessage { addr: "/add_marker".to_string(), args: None },
+                        event::ArdourCmd::Mute(channel, state) => {
+                                let value = if state==event::ButtonState::Released { 0 } else { -193 };
+                                OscMessage {
+                                        addr: "/strip/gain".to_string(),
+                                        args: Some(vec![
+                                                OscType::Int(channel as i32 + 1),
+                                                OscType::Int(value)
+                                        ])
+                                }},
                         event::ArdourCmd::ToggleTransport =>
                                 OscMessage { addr: "/toggle_roll".to_string(), args: None },
                         event::ArdourCmd::PrepareRecord =>

@@ -6,6 +6,7 @@ use std::sync::mpsc;
 use jack_client;
 
 pub enum ArdourCmd {
+        Mute(usize, ButtonState),
         AddMark,
         PrepareRecord,
         ToggleTransport
@@ -119,6 +120,8 @@ pub fn button_event(number: usize, state: ButtonState) -> Event {
         match (button, state) {
                 (Button::Jingle(n), _)
                         => Event::JingleButton(JingleButtonEvent { number: n, state: state }),
+                (Button::Mute(n), _)
+                        => Event::ArdourCmd(ArdourCmd::Mute(n, state)),
                 (Button::AddMark, ButtonState::Pressed)
                         => Event::ArdourCmd(ArdourCmd::AddMark),
                 (Button::Play, ButtonState::Pressed)
