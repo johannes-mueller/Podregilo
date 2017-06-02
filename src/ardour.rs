@@ -72,7 +72,7 @@ impl event::Handler for Handler {
                                         addr: "/strip/gain".to_string(),
                                         args: Some(vec![
                                                 OscType::Int(channel as i32 + 1),
-                                                OscType::Int(value)
+                                                OscType::Float(value as f32)
                                         ])
                                 }},
                         event::ArdourCmd::ToggleTransport =>
