@@ -22,6 +22,7 @@ pub enum Event {
         ),
         RecordEnabled(bool),
         ArdourCmd(ArdourCmd),
+        XRun,
         Dummy
 }
 

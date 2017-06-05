@@ -69,6 +69,11 @@ impl Handler {
                 *old = enabled;
         }
 
+        pub fn xrun(&self) {
+                let msg = Message { head: 'x', data: vec![] };
+                self.msg_tx.send(msg);
+        }
+
         fn level(&self, sig: jack_client::Levels) {
                 let mut levels = self.level_mutex.lock().expect("Could not get access to level mutex.");
                 for (l, s) in levels.iter_mut().zip(&sig) {
@@ -104,6 +109,7 @@ impl event::Handler for Handler {
                         event::Event::ArdourTime(t) => self.transport_time(t),
                         event::Event::ArdourSpeed(s) => self.transport_speed(s),
                         event::Event::RecordEnabled(re) => self.show_recenabled(re),
+                        event::Event::XRun => self.xrun(),
                         _ => {}
                 };
         }

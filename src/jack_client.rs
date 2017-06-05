@@ -204,6 +204,7 @@ impl jack::JackHandler for Handler {
 
         fn xrun(&mut self) -> jack::JackControl{
                 println!("*** xrun ***");
+                self.event_queue.pass_event(event::Event::XRun);
                 jack::JackControl::Continue
         }
 }

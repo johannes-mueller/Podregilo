@@ -48,6 +48,9 @@ double transportSpeed;
 bool recEnabled;
 
 
+unsigned int xruns = 0;
+
+
 enum LEDcolor { dark = 0b00, red = 0b01, green = 0b10, yellow = 0b11 };
 enum LEDstate { off = false, on = true };
 
@@ -91,6 +94,11 @@ void blinkLED(struct LED *l, unsigned int period)
         l->blinkTime = period;
 }
 
+void indicate_xruns()
+{
+        blinkLED(&diagRed, 2000/xruns);
+}
+
 
 struct Prober
 {
@@ -118,7 +126,7 @@ bool haveConnection()
                         optimistic = true;
                 }
                 setLED(&diagGreen, on);
-                setLED(&diagRed, off);
+                indicate_xruns();
                 return true;
         }
 
@@ -255,6 +263,18 @@ void updateRecEnabled()
         recEnabled = (b != '\0');
 }
 
+void new_xrun()
+{
+        xruns += 1;
+        indicate_xruns();
+}
+
+void reset_xruns()
+{
+        xruns = 0;
+        setLED(&diagRed, off);
+}
+
 void checkSerialBuffer()
 {
 	if (!Serial.available())
@@ -274,6 +294,12 @@ void checkSerialBuffer()
                 break;
         case 'r':
                 updateRecEnabled();
+                break;
+        case 'x':
+                new_xrun();
+                break;
+        case 'X':
+                reset_xruns();
                 break;
         case '!':
                 prober.answerReceived = true;
@@ -376,6 +402,7 @@ void setup()
 
         transportSpeed = 0.0;
         recEnabled = false;
+        xruns = 0;
 
         Serial.begin(9600);
 
