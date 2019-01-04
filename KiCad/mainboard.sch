@@ -1,35 +1,5 @@
-EESchema Schematic File Version 2
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:mainboard-cache
-EELAYER 25 0
+EESchema Schematic File Version 4
+EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -44,7 +14,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L 74LS165 U2
+L mainboard-rescue:74LS165 U2
 U 1 1 571A5491
 P 3900 1600
 F 0 "U2" H 4050 1550 50  0000 C CNN
@@ -55,7 +25,7 @@ F 3 "" H 3900 1600 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L 74LS165 U1
+L mainboard-rescue:74LS165 U1
 U 1 1 571A56ED
 P 1850 1600
 F 0 "U1" H 2000 1550 50  0000 C CNN
@@ -66,7 +36,7 @@ F 3 "" H 1850 1600 50  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L R R4
+L mainboard-rescue:R R4
 U 1 1 571A5B0E
 P 1650 3350
 F 0 "R4" H 1730 3350 50  0001 C CNN
@@ -77,7 +47,7 @@ F 3 "" H 1650 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R3
+L mainboard-rescue:R R3
 U 1 1 571A5CB4
 P 1550 3350
 F 0 "R3" V 1630 3350 50  0001 C CNN
@@ -88,7 +58,7 @@ F 3 "" H 1550 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R2
+L mainboard-rescue:R R2
 U 1 1 571A5DB7
 P 1450 3350
 F 0 "R2" H 1530 3350 50  0001 C CNN
@@ -99,7 +69,7 @@ F 3 "" H 1450 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R1
+L mainboard-rescue:R R1
 U 1 1 571A5DBD
 P 1350 3350
 F 0 "R1" V 1430 3350 50  0001 C CNN
@@ -110,7 +80,7 @@ F 3 "" H 1350 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R7
+L mainboard-rescue:R R7
 U 1 1 571A5DCB
 P 1950 3350
 F 0 "R7" V 2030 3350 50  0001 C CNN
@@ -121,7 +91,7 @@ F 3 "" H 1950 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R6
+L mainboard-rescue:R R6
 U 1 1 571A5DD1
 P 1850 3350
 F 0 "R6" H 1930 3350 50  0001 C CNN
@@ -132,7 +102,7 @@ F 3 "" H 1850 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R5
+L mainboard-rescue:R R5
 U 1 1 571A5DD7
 P 1750 3350
 F 0 "R5" V 1830 3350 50  0001 C CNN
@@ -143,7 +113,7 @@ F 3 "" H 1750 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R16
+L mainboard-rescue:R R16
 U 1 1 571A5E9A
 P 3700 3350
 F 0 "R16" H 3780 3350 50  0001 C CNN
@@ -154,7 +124,7 @@ F 3 "" H 3700 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R15
+L mainboard-rescue:R R15
 U 1 1 571A5EA0
 P 3600 3350
 F 0 "R15" V 3680 3350 50  0001 C CNN
@@ -165,7 +135,7 @@ F 3 "" H 3600 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R14
+L mainboard-rescue:R R14
 U 1 1 571A5EA6
 P 3500 3350
 F 0 "R14" H 3580 3350 50  0001 C CNN
@@ -176,7 +146,7 @@ F 3 "" H 3500 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R13
+L mainboard-rescue:R R13
 U 1 1 571A5EAC
 P 3400 3350
 F 0 "R13" V 3480 3350 50  0001 C CNN
@@ -187,7 +157,7 @@ F 3 "" H 3400 3350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 7400 U3
+L mainboard-rescue:7400 U3
 U 1 1 571A6188
 P 6150 1350
 F 0 "U3" H 6150 1400 50  0000 C CNN
@@ -198,7 +168,7 @@ F 3 "" H 6150 1350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 7400 U3
+L mainboard-rescue:7400 U3
 U 2 1 571A6239
 P 6150 1850
 F 0 "U3" H 6150 1900 50  0000 C CNN
@@ -209,7 +179,7 @@ F 3 "" H 6150 1850 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 7400 U3
+L mainboard-rescue:7400 U3
 U 3 1 571A631A
 P 6150 2350
 F 0 "U3" H 6150 2400 50  0000 C CNN
@@ -220,7 +190,7 @@ F 3 "" H 6150 2350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 7400 U3
+L mainboard-rescue:7400 U3
 U 4 1 571A6351
 P 6150 2850
 F 0 "U3" H 6150 2900 50  0000 C CNN
@@ -231,7 +201,7 @@ F 3 "" H 6150 2850 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR01
+L power:GND #PWR01
 U 1 1 571A64F2
 P 3700 3650
 F 0 "#PWR01" H 3700 3400 50  0001 C CNN
@@ -242,7 +212,7 @@ F 3 "" H 3700 3650 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R17
+L mainboard-rescue:R R17
 U 1 1 571A6E3B
 P 6900 1350
 F 0 "R17" V 6980 1350 50  0000 C CNN
@@ -253,7 +223,7 @@ F 3 "" H 6900 1350 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R18
+L mainboard-rescue:R R18
 U 1 1 571A7066
 P 6900 1850
 F 0 "R18" V 6980 1850 50  0000 C CNN
@@ -264,7 +234,7 @@ F 3 "" H 6900 1850 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R19
+L mainboard-rescue:R R19
 U 1 1 571A709A
 P 6900 2350
 F 0 "R19" V 6980 2350 50  0000 C CNN
@@ -275,7 +245,7 @@ F 3 "" H 6900 2350 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R20
+L mainboard-rescue:R R20
 U 1 1 571A7102
 P 6900 2850
 F 0 "R20" V 6980 2850 50  0000 C CNN
@@ -286,7 +256,7 @@ F 3 "" H 6900 2850 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L CONN_02X13 P1
+L mainboard-rescue:CONN_02X13 P1
 U 1 1 571A8D2E
 P 6750 4200
 F 0 "P1" H 6750 4900 50  0000 C CNN
@@ -297,7 +267,7 @@ F 3 "" H 6750 3050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 74LS595 U7
+L mainboard-rescue:74LS595 U7
 U 1 1 571ACC7D
 P 8550 4550
 F 0 "U7" H 8700 5150 50  0000 C CNN
@@ -308,7 +278,7 @@ F 3 "" H 8550 4550 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L 74LS595 U5
+L mainboard-rescue:74LS595 U5
 U 1 1 571ACF64
 P 1700 6750
 F 0 "U5" H 1850 7350 50  0000 C CNN
@@ -319,7 +289,7 @@ F 3 "" H 1700 6750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L 74LS595 U4
+L mainboard-rescue:74LS595 U4
 U 1 1 571AD01D
 P 1700 5350
 F 0 "U4" H 1850 5950 50  0000 C CNN
@@ -330,7 +300,7 @@ F 3 "" H 1700 5350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R44
+L mainboard-rescue:R R44
 U 1 1 571AD0BB
 P 7700 4100
 F 0 "R44" V 7780 4100 50  0001 C CNN
@@ -341,7 +311,7 @@ F 3 "" H 7700 4100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R45
+L mainboard-rescue:R R45
 U 1 1 571AD31C
 P 7700 4200
 F 0 "R45" V 7780 4200 50  0001 C CNN
@@ -352,7 +322,7 @@ F 3 "" H 7700 4200 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R46
+L mainboard-rescue:R R46
 U 1 1 571AD335
 P 7700 4300
 F 0 "R46" V 7780 4300 50  0001 C CNN
@@ -363,7 +333,7 @@ F 3 "" H 7700 4300 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R47
+L mainboard-rescue:R R47
 U 1 1 571AD33B
 P 7700 4400
 F 0 "R47" V 7780 4400 50  0001 C CNN
@@ -374,7 +344,7 @@ F 3 "" H 7700 4400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R48
+L mainboard-rescue:R R48
 U 1 1 571AD354
 P 7700 4500
 F 0 "R48" V 7780 4500 50  0001 C CNN
@@ -385,7 +355,7 @@ F 3 "" H 7700 4500 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R49
+L mainboard-rescue:R R49
 U 1 1 571AD35A
 P 7700 4600
 F 0 "R49" V 7780 4600 50  0001 C CNN
@@ -396,7 +366,7 @@ F 3 "" H 7700 4600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R50
+L mainboard-rescue:R R50
 U 1 1 571AD360
 P 7700 4700
 F 0 "R50" V 7780 4700 50  0001 C CNN
@@ -407,7 +377,7 @@ F 3 "" H 7700 4700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R51
+L mainboard-rescue:R R51
 U 1 1 571AD366
 P 7700 4800
 F 0 "R51" V 7780 4800 50  0001 C CNN
@@ -418,7 +388,7 @@ F 3 "" H 7700 4800 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L CONN_02X13 P2
+L mainboard-rescue:CONN_02X13 P2
 U 1 1 571AE1ED
 P 3250 6400
 F 0 "P2" H 3250 7100 50  0000 C CNN
@@ -429,7 +399,7 @@ F 3 "" H 3250 5250 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R37
+L mainboard-rescue:R R37
 U 1 1 571B089F
 P 3700 6400
 F 0 "R37" V 3780 6400 50  0001 C CNN
@@ -440,7 +410,7 @@ F 3 "" H 3700 6400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R38
+L mainboard-rescue:R R38
 U 1 1 571B08A5
 P 3700 6500
 F 0 "R38" V 3780 6500 50  0001 C CNN
@@ -451,7 +421,7 @@ F 3 "" H 3700 6500 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R39
+L mainboard-rescue:R R39
 U 1 1 571B08AB
 P 3700 6600
 F 0 "R39" V 3780 6600 50  0001 C CNN
@@ -462,7 +432,7 @@ F 3 "" H 3700 6600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R40
+L mainboard-rescue:R R40
 U 1 1 571B08B1
 P 3700 6700
 F 0 "R40" V 3780 6700 50  0001 C CNN
@@ -473,7 +443,7 @@ F 3 "" H 3700 6700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R41
+L mainboard-rescue:R R41
 U 1 1 571B08B7
 P 3700 6800
 F 0 "R41" V 3780 6800 50  0001 C CNN
@@ -484,7 +454,7 @@ F 3 "" H 3700 6800 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R42
+L mainboard-rescue:R R42
 U 1 1 571B08BD
 P 3700 6900
 F 0 "R42" V 3780 6900 50  0001 C CNN
@@ -495,7 +465,7 @@ F 3 "" H 3700 6900 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R43
+L mainboard-rescue:R R43
 U 1 1 571B08C3
 P 3700 7000
 F 0 "R43" V 3780 7000 50  0001 C CNN
@@ -506,7 +476,7 @@ F 3 "" H 3700 7000 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R29
+L mainboard-rescue:R R29
 U 1 1 571B08F5
 P 2550 6400
 F 0 "R29" V 2630 6400 50  0001 C CNN
@@ -517,7 +487,7 @@ F 3 "" H 2550 6400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R30
+L mainboard-rescue:R R30
 U 1 1 571B08FB
 P 2550 6500
 F 0 "R30" V 2630 6500 50  0001 C CNN
@@ -528,7 +498,7 @@ F 3 "" H 2550 6500 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R31
+L mainboard-rescue:R R31
 U 1 1 571B0901
 P 2550 6600
 F 0 "R31" V 2630 6600 50  0001 C CNN
@@ -539,7 +509,7 @@ F 3 "" H 2550 6600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R32
+L mainboard-rescue:R R32
 U 1 1 571B0907
 P 2550 6700
 F 0 "R32" V 2630 6700 50  0001 C CNN
@@ -550,7 +520,7 @@ F 3 "" H 2550 6700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R33
+L mainboard-rescue:R R33
 U 1 1 571B090D
 P 2550 6800
 F 0 "R33" V 2630 6800 50  0001 C CNN
@@ -561,7 +531,7 @@ F 3 "" H 2550 6800 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R34
+L mainboard-rescue:R R34
 U 1 1 571B0913
 P 2550 6900
 F 0 "R34" V 2630 6900 50  0001 C CNN
@@ -572,7 +542,7 @@ F 3 "" H 2550 6900 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R35
+L mainboard-rescue:R R35
 U 1 1 571B0919
 P 2550 7000
 F 0 "R35" V 2630 7000 50  0001 C CNN
@@ -583,7 +553,7 @@ F 3 "" H 2550 7000 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R21
+L mainboard-rescue:R R21
 U 1 1 571B1E45
 P 2550 5000
 F 0 "R21" V 2630 5000 50  0001 C CNN
@@ -594,7 +564,7 @@ F 3 "" H 2550 5000 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R22
+L mainboard-rescue:R R22
 U 1 1 571B1E4B
 P 2550 5100
 F 0 "R22" V 2630 5100 50  0001 C CNN
@@ -605,7 +575,7 @@ F 3 "" H 2550 5100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R23
+L mainboard-rescue:R R23
 U 1 1 571B1E51
 P 2550 5200
 F 0 "R23" V 2630 5200 50  0001 C CNN
@@ -616,7 +586,7 @@ F 3 "" H 2550 5200 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R24
+L mainboard-rescue:R R24
 U 1 1 571B1E57
 P 2550 5300
 F 0 "R24" V 2630 5300 50  0001 C CNN
@@ -627,7 +597,7 @@ F 3 "" H 2550 5300 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R25
+L mainboard-rescue:R R25
 U 1 1 571B1E5D
 P 2550 5400
 F 0 "R25" V 2630 5400 50  0001 C CNN
@@ -638,7 +608,7 @@ F 3 "" H 2550 5400 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R26
+L mainboard-rescue:R R26
 U 1 1 571B1E63
 P 2550 5500
 F 0 "R26" V 2630 5500 50  0001 C CNN
@@ -649,7 +619,7 @@ F 3 "" H 2550 5500 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R27
+L mainboard-rescue:R R27
 U 1 1 571B1E69
 P 2550 5600
 F 0 "R27" V 2630 5600 50  0001 C CNN
@@ -660,7 +630,7 @@ F 3 "" H 2550 5600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L 74LS595 U6
+L mainboard-rescue:74LS595 U6
 U 1 1 571ACF19
 P 4550 6750
 F 0 "U6" H 4550 6950 50  0000 C CNN
@@ -671,7 +641,7 @@ F 3 "" H 4550 6750 50  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L GND #PWR02
+L power:GND #PWR02
 U 1 1 571B5423
 P 5250 7350
 F 0 "#PWR02" H 5250 7100 50  0001 C CNN
@@ -682,7 +652,7 @@ F 3 "" H 5250 7350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR03
+L power:GND #PWR03
 U 1 1 571B545B
 P 1000 7350
 F 0 "#PWR03" H 1000 7100 50  0001 C CNN
@@ -693,7 +663,7 @@ F 3 "" H 1000 7350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR04
+L power:GND #PWR04
 U 1 1 571B5493
 P 1000 5950
 F 0 "#PWR04" H 1000 5700 50  0001 C CNN
@@ -706,7 +676,7 @@ $EndComp
 NoConn ~ 2400 5800
 NoConn ~ 2400 4900
 $Comp
-L Arduino_Nano_Header J1
+L mainboard-rescue:Arduino_Nano_Header J1
 U 1 1 571B5B0A
 P 10550 3100
 F 0 "J1" H 10550 3900 60  0000 C CNN
@@ -717,7 +687,7 @@ F 3 "" H 10550 3100 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR05
+L power:GND #PWR05
 U 1 1 571C0530
 P 10950 4100
 F 0 "#PWR05" H 10950 3850 50  0001 C CNN
@@ -728,7 +698,7 @@ F 3 "" H 10950 4100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR06
+L power:GND #PWR06
 U 1 1 571C3761
 P 2050 2300
 F 0 "#PWR06" H 2050 2050 50  0001 C CNN
@@ -739,7 +709,7 @@ F 3 "" H 2050 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR07
+L power:GND #PWR07
 U 1 1 571C47CF
 P 4100 2300
 F 0 "#PWR07" H 4100 2050 50  0001 C CNN
@@ -750,7 +720,7 @@ F 3 "" H 4100 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR08
+L power:GND #PWR08
 U 1 1 571CB910
 P 6500 4800
 F 0 "#PWR08" H 6500 4550 50  0001 C CNN
@@ -781,7 +751,7 @@ NoConn ~ 10900 3600
 NoConn ~ 10900 3700
 NoConn ~ 10900 3800
 $Comp
-L GND #PWR09
+L power:GND #PWR09
 U 1 1 571D0FCA
 P 1000 2300
 F 0 "#PWR09" H 1000 2050 50  0001 C CNN
@@ -792,7 +762,7 @@ F 3 "" H 1000 2300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR010
+L power:VCC #PWR010
 U 1 1 571D4424
 P 11050 2250
 F 0 "#PWR010" H 11050 2100 50  0001 C CNN
@@ -803,7 +773,7 @@ F 3 "" H 11050 2250 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR011
+L power:VCC #PWR011
 U 1 1 571D4C0D
 P 5450 6100
 F 0 "#PWR011" H 5450 5950 50  0001 C CNN
@@ -814,7 +784,7 @@ F 3 "" H 5450 6100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR012
+L power:VCC #PWR012
 U 1 1 571D50D9
 P 850 4750
 F 0 "#PWR012" H 850 4600 50  0001 C CNN
@@ -825,7 +795,7 @@ F 3 "" H 850 4750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR013
+L power:VCC #PWR013
 U 1 1 571D53B8
 P 9400 3750
 F 0 "#PWR013" H 9400 3600 50  0001 C CNN
@@ -836,7 +806,7 @@ F 3 "" H 9400 3750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR014
+L power:VCC #PWR014
 U 1 1 571D5DDA
 P 850 6150
 F 0 "#PWR014" H 850 6000 50  0001 C CNN
@@ -847,7 +817,7 @@ F 3 "" H 850 6150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L USB_B P3
+L mainboard-rescue:USB_B-RESCUE-mainboard P3
 U 1 1 571D5FD0
 P 10450 1050
 F 0 "P3" H 10650 850 50  0000 C CNN
@@ -858,7 +828,7 @@ F 3 "" V 10400 950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L CONN_01X04 P4
+L mainboard-rescue:CONN_01X04 P4
 U 1 1 571D60B2
 P 10400 1550
 F 0 "P4" H 10400 1800 50  0000 C CNN
@@ -869,7 +839,7 @@ F 3 "" H 10400 1550 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L CONN_01X02 P6
+L mainboard-rescue:CONN_01X02 P6
 U 1 1 571CBFC1
 P 4750 3700
 F 0 "P6" H 4750 3850 50  0000 C CNN
@@ -880,7 +850,7 @@ F 3 "" H 4750 3700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L CONN_01X02 P7
+L mainboard-rescue:CONN_01X02 P7
 U 1 1 571CC050
 P 4400 3700
 F 0 "P7" H 4400 3850 50  0000 C CNN
@@ -891,7 +861,7 @@ F 3 "" H 4400 3700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L CONN_01X02 P5
+L mainboard-rescue:CONN_01X02 P5
 U 1 1 571CC15A
 P 4050 3700
 F 0 "P5" H 4050 3850 50  0000 C CNN
@@ -902,7 +872,7 @@ F 3 "" H 4050 3700 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR015
+L power:GND #PWR015
 U 1 1 57211F5B
 P 4000 5100
 F 0 "#PWR015" H 4000 4850 50  0001 C CNN
@@ -913,7 +883,7 @@ F 3 "" H 4000 5100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R8
+L mainboard-rescue:R R8
 U 1 1 57211F9B
 P 3850 5100
 F 0 "R8" V 3930 5100 50  0000 C CNN
@@ -924,7 +894,7 @@ F 3 "" H 3850 5100 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR016
+L power:GND #PWR016
 U 1 1 572278F9
 P 10750 950
 F 0 "#PWR016" H 10750 700 50  0001 C CNN
@@ -935,7 +905,7 @@ F 3 "" H 10750 950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR017
+L power:VCC #PWR017
 U 1 1 57228042
 P 6500 3400
 F 0 "#PWR017" H 6500 3250 50  0001 C CNN
@@ -946,7 +916,7 @@ F 3 "" H 6500 3400 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR018
+L power:VCC #PWR018
 U 1 1 57228F4F
 P 4800 3500
 F 0 "#PWR018" H 4800 3350 50  0001 C CNN
@@ -957,7 +927,7 @@ F 3 "" H 4800 3500 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R52
+L mainboard-rescue:R R52
 U 1 1 587072D5
 P 9100 5550
 F 0 "R52" V 9050 5400 50  0000 C CNN
@@ -968,7 +938,7 @@ F 3 "" H 9100 5550 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R53
+L mainboard-rescue:R R53
 U 1 1 5870767C
 P 9100 5650
 F 0 "R53" V 9050 5500 50  0000 C CNN
@@ -979,7 +949,7 @@ F 3 "" H 9100 5650 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R54
+L mainboard-rescue:R R54
 U 1 1 58707841
 P 9100 5750
 F 0 "R54" V 9050 5600 50  0000 C CNN
@@ -990,7 +960,7 @@ F 3 "" H 9100 5750 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R55
+L mainboard-rescue:R R55
 U 1 1 587078A3
 P 9100 5850
 F 0 "R55" V 9050 5700 50  0000 C CNN
@@ -1003,7 +973,7 @@ $EndComp
 NoConn ~ 1450 900 
 NoConn ~ 3500 900 
 $Comp
-L C C1
+L mainboard-rescue:C C1
 U 1 1 58726396
 P 1000 2100
 F 0 "C1" H 1025 2200 50  0000 L CNN
@@ -1014,7 +984,7 @@ F 3 "" H 1000 2100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR019
+L power:VCC #PWR019
 U 1 1 587264A7
 P 1000 1900
 F 0 "#PWR019" H 1000 1750 50  0001 C CNN
@@ -1025,7 +995,7 @@ F 3 "" H 1000 1900 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C2
+L mainboard-rescue:C C2
 U 1 1 58726847
 P 3000 2050
 F 0 "C2" H 2850 2150 50  0000 L CNN
@@ -1036,7 +1006,7 @@ F 3 "" H 3000 2050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR020
+L power:GND #PWR020
 U 1 1 5872684D
 P 3000 2200
 F 0 "#PWR020" H 3000 1950 50  0001 C CNN
@@ -1047,7 +1017,7 @@ F 3 "" H 3000 2200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR021
+L power:VCC #PWR021
 U 1 1 58726853
 P 3000 1900
 F 0 "#PWR021" H 3000 1750 50  0001 C CNN
@@ -1058,7 +1028,7 @@ F 3 "" H 3000 1900 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C4
+L mainboard-rescue:C C4
 U 1 1 58726CBE
 P 850 5650
 F 0 "C4" H 875 5750 50  0000 L CNN
@@ -1069,7 +1039,7 @@ F 3 "" H 850 5650 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C5
+L mainboard-rescue:C C5
 U 1 1 58726ED8
 P 850 7050
 F 0 "C5" H 750 7150 50  0000 L CNN
@@ -1080,7 +1050,7 @@ F 3 "" H 850 7050 50  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L C C7
+L mainboard-rescue:C C7
 U 1 1 58727466
 P 9400 4950
 F 0 "C7" H 9425 5050 50  0000 L CNN
@@ -1091,7 +1061,7 @@ F 3 "" H 9400 4950 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C6
+L mainboard-rescue:C C6
 U 1 1 58729C64
 P 5450 7100
 F 0 "C6" H 5475 7200 50  0000 L CNN
@@ -1102,7 +1072,7 @@ F 3 "" H 5450 7100 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR022
+L power:GND #PWR022
 U 1 1 5872F868
 P 10750 1350
 F 0 "#PWR022" H 10750 1100 50  0001 C CNN
@@ -1113,7 +1083,7 @@ F 3 "" H 10750 1350 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR023
+L power:GND #PWR023
 U 1 1 58734BBF
 P 2600 2200
 F 0 "#PWR023" H 2600 1950 50  0001 C CNN
@@ -1124,7 +1094,7 @@ F 3 "" H 2600 2200 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR024
+L power:GND #PWR024
 U 1 1 571B5861
 P 9400 5150
 F 0 "#PWR024" H 9400 4900 50  0001 C CNN
@@ -1135,7 +1105,7 @@ F 3 "" H 9400 5150 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	850  6150 850  6900
+	850  6150 850  6600
 Wire Wire Line
 	1400 6150 850  6150
 Wire Wire Line
@@ -1144,7 +1114,7 @@ Connection ~ 1000 7350
 Wire Wire Line
 	1000 7350 1000 6900
 Wire Wire Line
-	850  7350 1400 7350
+	850  7350 1000 7350
 Wire Wire Line
 	1400 7350 1400 7300
 Connection ~ 5450 6600
@@ -1152,7 +1122,7 @@ Wire Wire Line
 	5450 7350 5450 7250
 Connection ~ 5250 7350
 Wire Wire Line
-	4850 7350 5450 7350
+	4850 7350 5250 7350
 Wire Wire Line
 	4850 7300 4850 7350
 Wire Wire Line
@@ -1161,7 +1131,7 @@ Connection ~ 9250 5150
 Wire Wire Line
 	8850 5100 8850 5150
 Wire Wire Line
-	8850 5150 9400 5150
+	8850 5150 9250 5150
 Wire Wire Line
 	9400 5150 9400 5100
 Wire Wire Line
@@ -1177,7 +1147,7 @@ Wire Wire Line
 	8850 4000 8850 3900
 Connection ~ 3000 1900
 Wire Wire Line
-	5450 6100 5450 6950
+	5450 6100 5450 6600
 Connection ~ 4500 2300
 Wire Wire Line
 	4600 2300 4600 1900
@@ -1259,7 +1229,7 @@ Wire Wire Line
 	3500 5900 3750 5900
 Connection ~ 4450 3500
 Wire Wire Line
-	4100 3500 4800 3500
+	4100 3500 4450 3500
 Connection ~ 4700 2750
 Wire Wire Line
 	4700 3500 4700 2750
@@ -1322,11 +1292,11 @@ Connection ~ 5350 2850
 Connection ~ 3600 2800
 Connection ~ 5250 2800
 Wire Wire Line
-	3600 2800 5250 2800
+	3600 2800 4350 2800
 Connection ~ 3500 2750
 Connection ~ 5150 2750
 Wire Wire Line
-	3500 2750 5150 2750
+	3500 2750 4700 2750
 Connection ~ 3400 2700
 Connection ~ 5050 2700
 Wire Wire Line
@@ -1381,7 +1351,7 @@ Wire Wire Line
 Wire Wire Line
 	6500 4100 2650 4100
 Wire Wire Line
-	1350 3650 3700 3650
+	1350 3650 1450 3650
 Wire Wire Line
 	1350 3500 1350 3650
 Connection ~ 1950 3650
@@ -1430,7 +1400,7 @@ Connection ~ 4100 2300
 Connection ~ 4000 2300
 Connection ~ 3900 2300
 Wire Wire Line
-	3800 2300 4600 2300
+	3800 2300 3900 2300
 Connection ~ 3700 3650
 Wire Wire Line
 	3700 3650 3700 3500
@@ -1444,13 +1414,13 @@ Connection ~ 3400 3650
 Wire Wire Line
 	3400 3650 3400 3500
 Wire Wire Line
-	3700 2300 3700 3200
+	3700 2300 3700 2850
 Wire Wire Line
-	3600 2300 3600 3200
+	3600 2300 3600 2800
 Wire Wire Line
-	3500 2300 3500 3200
+	3500 2300 3500 2750
 Wire Wire Line
-	3400 2300 3400 3200
+	3400 2300 3400 2700
 Wire Wire Line
 	7400 1350 7050 1350
 Wire Wire Line
@@ -1483,16 +1453,16 @@ Connection ~ 9700 4600
 Wire Wire Line
 	9700 6250 5800 6250
 Wire Wire Line
-	5800 6250 5800 7700
+	5800 6250 5800 6800
 Connection ~ 9600 4300
 Wire Wire Line
 	9700 3300 10200 3300
 Wire Wire Line
-	9700 3300 9700 6250
+	9700 3300 9700 4600
 Wire Wire Line
 	9600 3200 10200 3200
 Wire Wire Line
-	9600 3200 9600 6200
+	9600 3200 9600 4300
 Wire Wire Line
 	9250 4300 9600 4300
 Wire Wire Line
@@ -1514,7 +1484,7 @@ Wire Wire Line
 Wire Wire Line
 	4800 750  8200 750 
 Wire Wire Line
-	5700 6200 5700 7650
+	5700 6200 5700 6500
 Wire Wire Line
 	9400 4400 9250 4400
 Wire Wire Line
@@ -1528,19 +1498,19 @@ Wire Wire Line
 Wire Wire Line
 	5450 6600 5250 6600
 Wire Wire Line
-	1350 2300 1350 3200
+	1350 2300 1350 2700
 Wire Wire Line
-	1450 2300 1450 3200
+	1450 2300 1450 2750
 Wire Wire Line
-	1550 2300 1550 3200
+	1550 2300 1550 2800
 Wire Wire Line
-	1650 2300 1650 3200
+	1650 2300 1650 2850
 Wire Wire Line
-	1750 2300 1750 3200
+	1750 2300 1750 2900
 Wire Wire Line
-	1850 2300 1850 3200
+	1850 2300 1850 2950
 Wire Wire Line
-	1950 2300 1950 3200
+	1950 2300 1950 3000
 Wire Wire Line
 	1350 900  1350 800 
 Wire Wire Line
@@ -1548,31 +1518,31 @@ Wire Wire Line
 Wire Wire Line
 	2700 800  2700 2450
 Wire Wire Line
-	5550 1250 5550 1450
+	5550 1250 5550 1350
 Wire Wire Line
-	5550 1750 5550 1950
+	5550 1750 5550 1850
 Wire Wire Line
-	5550 2250 5550 2450
+	5550 2250 5550 2350
 Wire Wire Line
-	5550 2750 5550 2950
+	5550 2750 5550 2850
 Connection ~ 5550 1350
 Connection ~ 5550 1850
 Connection ~ 5550 2350
 Connection ~ 5550 2850
 Wire Wire Line
-	5050 1350 5050 3700
+	5050 1350 5050 2700
 Wire Wire Line
 	5050 1350 5550 1350
 Wire Wire Line
-	5250 2350 5250 3900
+	5250 2350 5250 2800
 Wire Wire Line
 	5250 2350 5550 2350
 Wire Wire Line
-	3700 2850 5550 2850
+	3700 2850 4000 2850
 Wire Wire Line
 	5150 1850 5550 1850
 Wire Wire Line
-	5150 1850 5150 3800
+	5150 1850 5150 2750
 Wire Wire Line
 	7400 1350 7400 3700
 Wire Wire Line
@@ -1594,13 +1564,13 @@ Wire Wire Line
 Wire Wire Line
 	4400 2300 4400 2500
 Wire Wire Line
-	2350 2500 4700 2500
+	2350 2500 4400 2500
 Wire Wire Line
 	4700 2500 4700 650 
 Wire Wire Line
 	4250 2300 4250 2550
 Wire Wire Line
-	2200 2550 4800 2550
+	2200 2550 4250 2550
 Wire Wire Line
 	4800 2550 4800 750 
 Wire Wire Line
@@ -1670,17 +1640,17 @@ Wire Wire Line
 Wire Wire Line
 	600  6800 1000 6800
 Wire Wire Line
-	600  7700 600  5400
+	600  7700 600  6800
 Wire Wire Line
 	600  5400 1000 5400
 Wire Wire Line
 	1000 5100 650  5100
 Wire Wire Line
-	650  5100 650  7650
+	650  5100 650  6500
 Wire Wire Line
 	650  6500 1000 6500
 Wire Wire Line
-	9400 3750 9400 4800
+	9400 3750 9400 3900
 Wire Wire Line
 	9900 5650 9250 5650
 Wire Wire Line
@@ -1689,13 +1659,13 @@ Wire Wire Line
 	850  4750 1400 4750
 Connection ~ 850  4750
 Wire Wire Line
-	850  4750 850  5500
+	850  4750 850  5200
 Wire Wire Line
 	1000 5500 1000 5950
 Wire Wire Line
 	1400 5950 1400 5900
 Wire Wire Line
-	850  5950 1400 5950
+	850  5950 1000 5950
 Wire Wire Line
 	850  5950 850  5800
 Connection ~ 1000 5950
@@ -1707,4 +1677,110 @@ Wire Wire Line
 Connection ~ 850  6600
 Wire Wire Line
 	1400 4750 1400 4800
+Wire Wire Line
+	1000 7350 1400 7350
+Wire Wire Line
+	5450 6600 5450 6950
+Wire Wire Line
+	5250 7350 5450 7350
+Wire Wire Line
+	9250 5150 9400 5150
+Wire Wire Line
+	9400 4400 9400 4800
+Wire Wire Line
+	9400 3900 9400 4400
+Wire Wire Line
+	4500 2300 4600 2300
+Wire Wire Line
+	4450 3500 4800 3500
+Wire Wire Line
+	4700 2750 5150 2750
+Wire Wire Line
+	4350 2800 5250 2800
+Wire Wire Line
+	4000 2850 5350 2850
+Wire Wire Line
+	3700 2850 3700 3200
+Wire Wire Line
+	5350 2850 5550 2850
+Wire Wire Line
+	3600 2800 3600 3200
+Wire Wire Line
+	5250 2800 5250 3900
+Wire Wire Line
+	3500 2750 3500 3200
+Wire Wire Line
+	5150 2750 5150 3800
+Wire Wire Line
+	3400 2700 3400 3200
+Wire Wire Line
+	5050 2700 5050 3700
+Wire Wire Line
+	1950 3000 1950 3200
+Wire Wire Line
+	1850 2950 1850 3200
+Wire Wire Line
+	1750 2900 1750 3200
+Wire Wire Line
+	1650 2850 1650 3200
+Wire Wire Line
+	1550 2800 1550 3200
+Wire Wire Line
+	1450 2750 1450 3200
+Wire Wire Line
+	1350 2700 1350 3200
+Wire Wire Line
+	1950 3650 3400 3650
+Wire Wire Line
+	1850 3650 1950 3650
+Wire Wire Line
+	1750 3650 1850 3650
+Wire Wire Line
+	1650 3650 1750 3650
+Wire Wire Line
+	1550 3650 1650 3650
+Wire Wire Line
+	1450 3650 1550 3650
+Wire Wire Line
+	4400 2500 4700 2500
+Wire Wire Line
+	4250 2550 4800 2550
+Wire Wire Line
+	4100 2300 4500 2300
+Wire Wire Line
+	4000 2300 4100 2300
+Wire Wire Line
+	3900 2300 4000 2300
+Wire Wire Line
+	3600 3650 3700 3650
+Wire Wire Line
+	3500 3650 3600 3650
+Wire Wire Line
+	3400 3650 3500 3650
+Wire Wire Line
+	5700 6500 5700 7650
+Wire Wire Line
+	5800 6800 5800 7700
+Wire Wire Line
+	9700 4600 9700 6250
+Wire Wire Line
+	9600 4300 9600 6200
+Wire Wire Line
+	600  6800 600  5400
+Wire Wire Line
+	650  6500 650  7650
+Wire Wire Line
+	5550 1350 5550 1450
+Wire Wire Line
+	5550 1850 5550 1950
+Wire Wire Line
+	5550 2350 5550 2450
+Wire Wire Line
+	5550 2850 5550 2950
+Wire Wire Line
+	1000 5950 1400 5950
+Wire Wire Line
+	850  5200 850  5500
+Wire Wire Line
+	850  6600 850  6900
 $EndSCHEMATC
