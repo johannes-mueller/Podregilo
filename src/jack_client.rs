@@ -30,7 +30,7 @@ pub type ClipHandle = Arc<RwLock<Option<WavData>>>;
 // }
 
 #[derive(PartialEq, Copy, Clone)]
-struct ClipPosition {
+pub struct ClipPosition {
         clip_number: usize,
         sample_number: usize,
 }
